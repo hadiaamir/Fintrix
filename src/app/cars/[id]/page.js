@@ -33,9 +33,7 @@ export async function generateMetadata({ params }) {
 
 const Car = async ({ params }) => {
 
-  console.log('params',params)
-
-
+  
     // pull id params
     const { id } =  await params; // Ensure params is awaited
 

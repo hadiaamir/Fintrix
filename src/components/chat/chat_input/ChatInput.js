@@ -1,33 +1,38 @@
 "use client"; // Ensures this runs in the browser
 
+// libraries
 import { useRef, useState } from "react";
+import { ArrowRight } from "react-feather";
 
+// styles
 import styles from "./ChatInput.module.scss";
-import { ArrowRight, Send } from "react-feather";
 
-export default function ChatInput() {
+export default function ChatInput({ onSend }) {
   const [message, setMessage] = useState("");
   const textAreaRef = useRef(null);
 
+  const resetComponent = () => {
+    setMessage("");
+
+    // Reset textarea height
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "40px";
+    }
+  };
+
   const handleSend = async () => {
     if (message.trim()) {
+      // call handleSend function from prop
       onSend(message);
-      setMessage("");
-      textAreaRef.current.style.height = "40px"; // Reset height
-
-      // CALL THE API
-      await fetch("/api/sendMessage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+      resetComponent();
     }
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      console.log("Send message:", message);
+      // call handleSend function from prop
+      handleSend(message);
       setMessage(""); // Clear input
       textAreaRef.current.style.height = "40px"; // Reset height
     }

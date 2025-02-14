@@ -1,0 +1,59 @@
+.container {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  background-color: #212121;
+  max-width: 600px;
+  height: 100%;
+
+  border-radius: 1rem;
+  margin-bottom: 10rem;
+  margin-top: 12rem;
+
+  padding: 1rem;
+}
+
+.messsages {
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.userMessage {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 16px;
+  margin: 5px 0;
+  align-self: flex-end;
+}
+
+.botMessage {
+  background-color: #e0e0e0;
+  color: black;
+  padding: 8px 12px;
+  border-radius: 16px;
+  margin: 5px 0;
+  align-self: flex-start;
+}
+
+//
+
+.greeting {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding: 1rem 5rem;
+  text-align: center;
+}
+
+.greeting_title {
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 0 0 0.5rem 0;
+}
+
+.greeting_subtitle {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #8b8b8b;
+}

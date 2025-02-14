@@ -8,6 +8,7 @@ async function fetchCarData(id) {
   return data;
 }
 
+// preprend the car ids before the render
 export async function generateStaticParams() {
   // Fetch all car IDs from your data source
   const response = await fetch('http://localhost:3000/cars.json');
@@ -31,9 +32,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
+
 const Car = async ({ params }) => {
 
-  
     // pull id params
     const { id } =  await params; // Ensure params is awaited
 

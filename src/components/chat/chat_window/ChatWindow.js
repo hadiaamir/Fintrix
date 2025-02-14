@@ -1,17 +1,18 @@
 "use client";
 // libraries
 import { useState } from "react";
-import http from "@/utils/api";
+import http from "@/utils/http";
+import clsx from "clsx";
 // components
 import ChatInput from "../chat_input/ChatInput";
 // styles
 import ChatWindowStyles from "./ChatWindow.module.scss";
-import clsx from "clsx";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
 
   const handleSend = async (message) => {
+    // add users new message to the list of messages
     const newMessage = {
       id: messages.length + 1,
       text: message,
@@ -21,55 +22,28 @@ const ChatWindow = () => {
     setMessages([...messages, newMessage]);
 
     try {
+      // call chat api
       const response = await http.post("/chat", { message });
 
-      console.log("Response from server:", response.data);
+      if (!response) throw new Error(data.error || "Something went wrong");
+
+      // if the response is succesful
+      if (response) {
+        // update the messages with the AI's response added
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            text: response.data,
+            sender: "bot",
+          },
+        ]);
+      }
     } catch (error) {
-      console.error(
-        "Error sending message:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("API Error:", error);
+      alert("Failed to fetch response. Please try again.");
     }
-
-    //  Simulate bot response (replace with API call)
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          text: "Hi, Hadi how are you doing?",
-          sender: "bot",
-        },
-      ]);
-    }, 1000);
   };
-
-  // const handleSend = async (message) => {
-  //   console.log("message", message);
-
-  //   const response = await fetch("http://localhost:3000/api/chat", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ message }),
-  //   });
-
-  //   console.log("RESPONSE", response);
-
-  // setMessages([
-  //   ...messages,
-  //   { id: messages.length + 1, text: message, sender: "user" },
-  // ]);
-
-  // Simulate bot response (replace with API call)
-  // setTimeout(() => {
-  //   setMessages((prev) => [
-  //     ...prev,
-  //     { id: prev.length + 1, text: "I'm still learning!", sender: "bot" },
-  //   ]);
-  // }, 1000);
-  // };
 
   return (
     <div className={ChatWindowStyles["container"]}>

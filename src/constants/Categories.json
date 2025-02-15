@@ -1,34 +1,138 @@
-[
-  "Stock list",
-  "Company info",
-  "Quote",
-  "Financial statements",
-  "Statement Analysis",
-  "Valuation",
-  "Price Targets",
-  "Upgrades & Downgrades",
-  "News",
-  "Earnings Transcript",
-  "SEC Filings",
-  "Earnings",
-  "Dividends",
-  "Splits",
-  "IPO Calendar",
-  "Mergers & Acquisitions",
-  "Charts",
-  "Technical Indicators",
-  "ETF Holdings",
-  "Mutual Funds Holdings",
-  "ESG",
-  "Senate",
-  "Market Performance",
-  "13F Institution Ownership",
-  "Insider Trading",
-  "Fundraising",
-  "Economics Data",
-  "Commodities",
-  "Forex",
-  "Crypto",
-  "Constituents",
-  "Sales Revenue By Segments"
-]
+{
+  "Company Search": {
+    "desc": "Search over 70,000 symbols by symbol name or company name, including cryptocurrencies, forex, stocks, ETFs, and other financial instruments.",
+    "api": "https://financialmodelingprep.com/api/v3/search?query={query}"
+  },
+  "Stock List": {
+    "desc": "Retrieve a comprehensive list of over 80,000 traded and non-traded stock symbols.",
+    "api": "https://financialmodelingprep.com/api/v3/stock/list"
+  },
+  "Company Info": {
+    "desc": "Access detailed profiles of companies, including general information and key metrics.",
+    "api": "https://financialmodelingprep.com/api/v3/profile/{symbol}"
+  },
+  "Quote": {
+    "desc": "Obtain real-time stock quotes for a given symbol.",
+    "api": "https://financialmodelingprep.com/api/v3/quote/{symbol}"
+  },
+  "Financial Statements": {
+    "desc": "Retrieve annual and quarterly income statements for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/income-statement/{symbol}"
+  },
+  "Statement Analysis": {
+    "desc": "Access a variety of financial ratios for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/ratios/{symbol}"
+  },
+  "Valuation": {
+    "desc": "Retrieve valuation metrics for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/enterprise-values/{symbol}"
+  },
+  "Price Targets": {
+    "desc": "Get analyst price targets for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v4/price-target-consensus/{symbol}"
+  },
+  "Upgrades & Downgrades": {
+    "desc": "Access historical and real-time ratings of a company.",
+    "api": "https://financialmodelingprep.com/api/v3/historical-rating/{symbol}"
+  },
+  "News": {
+    "desc": "Retrieve the latest market news.",
+    "api": "https://financialmodelingprep.com/api/v3/stock_news"
+  },
+  "Earnings Transcripts": {
+    "desc": "Access earnings call transcripts for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/earning_call_transcript/{symbol}"
+  },
+  "SEC Filings": {
+    "desc": "Retrieve SEC filings for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/sec_filings/{symbol}"
+  },
+  "Earnings": {
+    "desc": "A list of upcoming and past earnings announcements for publicly traded companies, including the date, estimated earnings per share (EPS), and actual EPS (if available).",
+    "api": "https://financialmodelingprep.com/api/v3/earning_calendar"
+  },
+  "Dividends": {
+    "desc": "Retrieve information on upcoming and past dividend events.",
+    "api": "https://financialmodelingprep.com/api/v3/dividend_calendar"
+  },
+  "Splits": {
+    "desc": "Access information on upcoming and historical stock splits.",
+    "api": "https://financialmodelingprep.com/api/v3/stock_split_calendar"
+  },
+  "IPO Calendar": {
+    "desc": "Get details on upcoming and past initial public offerings (IPOs).",
+    "api": "https://financialmodelingprep.com/api/v3/ipo_calendar"
+  },
+  "Mergers & Acquisitions": {
+    "desc": "Retrieve data on recent mergers and acquisitions.",
+    "api": "https://financialmodelingprep.com/api/v3/mergers_acquisitions"
+  },
+  "Charts": {
+    "desc": "Obtain historical price charts for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/historical-chart/{interval}/{symbol}"
+  },
+  "Technical Indicators": {
+    "desc": "Access various technical indicators for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/technical_indicator/{interval}/{symbol}"
+  },
+  "ETF Holdings": {
+    "desc": "Retrieve holdings of a specified ETF.",
+    "api": "https://financialmodelingprep.com/api/v3/etf/holdings/{symbol}"
+  },
+  "Mutual Funds Holdings": {
+    "desc": "Access holdings of a specified mutual fund.",
+    "api": "https://financialmodelingprep.com/api/v3/mutual_fund/holdings/{symbol}"
+  },
+  "ESG": {
+    "desc": "Get environmental, social, and governance (ESG) ratings for companies.",
+    "api": "https://financialmodelingprep.com/api/v4/esg-environmental-social-governance-data"
+  },
+  "Senate": {
+    "desc": "Retrieve trading disclosures of U.S. senators.",
+    "api": "https://financialmodelingprep.com/api/v4/senate-trading"
+  },
+  "Market Performance": {
+    "desc": "Access data on overall market performance.",
+    "api": "https://financialmodelingprep.com/api/v3/market-performance"
+  },
+  "13F Institutional Ownership": {
+    "desc": "Retrieve institutional ownership data for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v3/institutional-holder/{symbol}"
+  },
+  "Insider Trading": {
+    "desc": "Access insider trading data for a specified company.",
+    "api": "https://financialmodelingprep.com/api/v4/insider-trading"
+  },
+  "Fundraising": {
+    "desc": "List of symbols that have financial statements.",
+    "api": "https://financialmodelingprep.com/api/v3/financial-statement-symbol-lists"
+  },
+  "Economics Data": {
+    "desc": "Provides a schedule of upcoming economic events and releases, including indicators such as GDP, unemployment rates, and more.",
+    "api": "https://financialmodelingprep.com/api/v3/economic_calendar"
+  },
+  "Commodities": {
+    "desc": "Retrieve a list of various commodities along with their current prices.",
+    "api": "https://financialmodelingprep.com/api/v3/commodities"
+  },
+  "Forex": {
+    "desc": "Get a list of available forex currency pairs.",
+    "api": "https://financialmodelingprep.com/api/v3/forex"
+  },
+  "Crypto": {
+    "desc": "Access a list of supported cryptocurrencies and their current prices.",
+    "api": "https://financialmodelingprep.com/api/v3/cryptocurrencies"
+  },
+  "Constituents": {
+    "desc": "Retrieve a list of companies that are part of the S&P 500 index.",
+    "api": "https://financialmodelingprep.com/api/v3/sp500_constituent"
+  },
+  "Sales Revenue By Segments": {
+    "desc": "Provides detailed information on a company's revenue broken down by business segments.",
+    "api": "https://financialmodelingprep.com/api/v4/revenue-segmentation"
+  },
+  "Websockets": {
+    "desc": "Provides real-time updates for company stock prices and quote data using WebSocket protocol.",
+    "api": "https://site.financialmodelingprep.com/developer/docs/websocket-api"
+  }
+}

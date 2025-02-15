@@ -23,7 +23,7 @@ const ChatWindow = () => {
 
     try {
       // call chat api
-      const response = await http.post("/chat", { message });
+      const response = await http.post("/chat", { prompt: message });
 
       if (!response) throw new Error(data.error || "Something went wrong");
 

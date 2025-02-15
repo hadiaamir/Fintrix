@@ -7,9 +7,13 @@ import clsx from "clsx";
 import ChatInput from "../chat_input/ChatInput";
 // styles
 import ChatWindowStyles from "./ChatWindow.module.scss";
+import SummaryCard from "@/components/summary_card/SummaryCard";
+import SummaryContainer from "@/components/summary_card/SummaryCard";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
+
+  const [responseData, setReponseData] = useState(null);
 
   const handleSend = async (message) => {
     // add users new message to the list of messages
@@ -29,15 +33,19 @@ const ChatWindow = () => {
 
       // if the response is succesful
       if (response) {
-        // update the messages with the AI's response added
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            text: response.data,
-            sender: "bot",
-          },
-        ]);
+        // // update the messages with the AI's response added
+        // setMessages((prev) => [
+        //   ...prev,
+        //   {
+        //     id: prev.length + 1,
+        //     text: response.data,
+        //     sender: "bot",
+        //   },
+        // ]);
+
+        console.log("response", response);
+
+        setReponseData(response);
       }
     } catch (error) {
       console.error("API Error:", error);
@@ -75,6 +83,14 @@ const ChatWindow = () => {
           </div>
         ))}
       </div>
+
+      {responseData && (
+        <div>
+          <h1>Company Financial Overview</h1>
+          <SummaryCard summaryData={responseData} />
+        </div>
+      )}
+
       <ChatInput onSend={handleSend} />
     </div>
   );

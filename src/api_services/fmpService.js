@@ -12,15 +12,31 @@ const fmpService = {
       // Get API URL template
       let apiUrl = FMP_CATEGORIES[category].api;
 
-      // Replace placeholders dynamically
+      console.log("params", params);
+
+      // Append remaining parameters correctly
+      // Construct base URL
+      const urlObj = new URL(apiUrl);
+
+      // Replace placeholders in API URL if they exist
       Object.keys(params).forEach((key) => {
-        apiUrl = apiUrl.replace(`{${key}}`, params[key]);
+        apiUrl = apiUrl.replace(`{${key}}`, encodeURIComponent(params[key]));
+      });
+
+      // Append missing parameters correctly
+      Object.entries(params).forEach(([key, value]) => {
+        if (!apiUrl.includes(`{${key}}`)) {
+          urlObj.searchParams.append(key, value);
+        }
       });
 
       // Append API key
-      apiUrl += apiUrl.includes("?")
-        ? `&apikey=${FMP_API_KEY}`
-        : `?apikey=${FMP_API_KEY}`;
+      urlObj.searchParams.append("apikey", FMP_API_KEY);
+
+      // Convert to final URL string
+      apiUrl = urlObj.toString();
+
+      console.log("apeneded url", apiUrl);
 
       console.log("fetching...");
 

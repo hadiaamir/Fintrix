@@ -10,6 +10,8 @@ import ChatWindowStyles from "./ChatWindow.module.scss";
 import SummaryCard from "@/components/summary_card/SummaryCard";
 import SummaryContainer from "@/components/summary_card/SummaryCard";
 import NewsCard from "@/components/news_card/NewsCard";
+import CompanyInfoCard from "@/components/company_info_card/CompanyInfoCard";
+import StockSearchCard from "@/components/stock_search_card/StockSearchCard";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
@@ -88,11 +90,19 @@ const ChatWindow = () => {
         <div>
           <h1>Company Financial Overview</h1>
 
-          {dataType === "Earnings Transcripts" && (
-            <SummaryCard summaryData={responseData} />
+          {dataType === "Company Search" && (
+            <StockSearchCard data={responseData} />
           )}
 
-          {dataType === "News" && <NewsCard newsData={responseData} />}
+          {dataType === "Company Info" && (
+            <CompanyInfoCard data={responseData} />
+          )}
+
+          {dataType === "Earnings Transcripts" && (
+            <SummaryCard data={responseData} />
+          )}
+
+          {dataType === "News" && <NewsCard data={responseData} />}
         </div>
       )}
 

@@ -40,9 +40,11 @@ export async function POST(req) {
     //   ? formatSummary(apiResponses)
     //   : formatDetailed(apiResponses);
 
-    console.log("✅ Final Response:", resultData);
+    const flattenedData = resultData.flat(Infinity);
 
-    return NextResponse.json({ key: urlData.category, data: resultData });
+    console.log("✅ Final Response:", flattenedData);
+
+    return NextResponse.json({ key: urlData.category, data: flattenedData });
   } catch (error) {
     console.error("❌ API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -218,8 +220,60 @@ async function guessParamValue(param, prompt) {
     return "10"; // Default to 0
   }
 
-  return "default"; // Fallback value
+  if (param === "exchange") {
+    return extractExchange(prompt);
+  }
+
+  if (param === "query") {
+    return extractQuery(prompt);
+  }
+
+  return ""; // Fallback value
 }
+
+const extractQuery = (prompt) => {
+  const words = prompt.split(/\s+/); // Split the prompt into words
+
+  for (const word of words) {
+    if (/^[A-Z]{1,5}$/.test(word)) {
+      // If it's 1-5 uppercase letters, assume it's a ticker symbol
+      return word;
+    }
+  }
+
+  // If no ticker is found, return the full prompt as a company name query
+  return prompt;
+};
+
+const extractExchange = (prompt) => {
+  const exchanges = [
+    "NYSE",
+    "NASDAQ",
+    "LSE",
+    "TSX",
+    "Euronext",
+    "HKEX",
+    "SSE",
+    "ASX",
+    "BSE",
+    "NSE",
+  ];
+
+  const words = prompt.toUpperCase().split(/\s+/); // Convert prompt to uppercase and split by spaces
+
+  for (const word of words) {
+    if (exchanges.includes(word)) {
+      return word; // Return the first found exchange
+    }
+  }
+
+  return ""; // Return empty "" if no exchange is found
+};
+
+// Example Usage
+console.log(extractExchange("Find companies listed on NASDAQ"));
+console.log(extractExchange("Show stocks trading on LSE"));
+console.log(extractExchange("What stocks are available on NYSE?"));
 
 function getLatestAvailableYearAndQuarter() {
   const now = new Date();

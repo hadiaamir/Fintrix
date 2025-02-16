@@ -1,13 +1,13 @@
 import styles from "./NewsCard.module.scss";
 
-const NewsCard = ({ newsData }) => {
-  if (!newsData || newsData.length === 0) {
+const NewsCard = ({ data }) => {
+  if (!data || data.length === 0) {
     return <p className={styles["news-card__empty"]}>No news available.</p>;
   }
 
   return (
     <div className={styles["news-card"]}>
-      {newsData.map((news, index) => (
+      {data.map((news, index) => (
         <div key={index} className={styles["news-card__item"]}>
           <img
             src={news.image}

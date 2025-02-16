@@ -1,15 +1,15 @@
 import styles from "./SummaryCard.module.scss";
 
-const SummaryCard = ({ summaryData }) => {
-  if (!summaryData || summaryData.length === 0) {
+const SummaryCard = ({ data }) => {
+  if (!data || data.length === 0) {
     return <p className={styles["summary-card__empty"]}>No data available.</p>;
   }
 
-  // Check if summaryData contains nested arrays
-  const isNestedArray = Array.isArray(summaryData[0]);
+  // Check if data contains nested arrays
+  const isNestedArray = Array.isArray(data[0]);
 
   // Flatten only if it's an array of arrays
-  const flattenedData = isNestedArray ? summaryData.flat() : summaryData;
+  const flattenedData = isNestedArray ? data.flat() : data;
 
   return (
     <div className={styles["summary-card"]}>

@@ -27,10 +27,12 @@ export async function POST(req) {
 
       resultData = await fetchMultipleApis(serperatedUrls);
     } else {
-      resultData = await fetchFromAPI(urlData);
+      resultData = await fetchFromAPI(url);
     }
 
     console.log("resultData", resultData);
+
+    // console.log("apiResponses", apiResponses);
 
     // // 7️⃣ Format Response: Summary or Detailed
     // const formattedResponse = summary
@@ -321,156 +323,6 @@ async function extractStockSymbols(prompt) {
   console.log("Extracted Tickers:", tickers);
 
   return tickers !== "UNKNOWN" ? tickers.split(",") : [];
-}
-
-// 📌 Helper function to create a summary response
-function formatSummary(apiResponses) {
-  const summary = {};
-
-  apiResponses.forEach(({ category, data }) => {
-    if (!data || data.length === 0) return;
-
-    switch (category) {
-      case "Earnings":
-        const actualEPS = data[0]?.eps || "N/A";
-        const estimatedEPS = data[0]?.estimatedEps || "N/A";
-        const surprise =
-          data[0]?.estimatedEps && data[0]?.eps
-            ? (
-                ((data[0].eps - data[0].estimatedEps) / data[0].estimatedEps) *
-                100
-              ).toFixed(2) + "%"
-            : "N/A";
-
-        summary["earnings"] = {
-          key: "earnings",
-          latest_quarter: data[0]?.date || "N/A",
-          actual_EPS: actualEPS,
-          estimated_EPS: estimatedEPS,
-          surprise: surprise,
-          summary: `For the latest quarter, the company reported an actual EPS of ${actualEPS}, compared to an estimated EPS of ${estimatedEPS}. This resulted in a surprise of ${surprise}.`,
-        };
-        break;
-
-      case "Company Info":
-        summary["company_info"] = {
-          key: "company_info",
-          name: data[0]?.companyName || "N/A",
-          symbol: data[0]?.symbol || "N/A",
-          industry: data[0]?.industry || "N/A",
-          market_cap: data[0]?.marketCap || "N/A",
-          ceo: data[0]?.ceo || "N/A",
-          summary: `Company ${data[0]?.companyName} (${data[0]?.symbol}) operates in the ${data[0]?.industry} industry. The current CEO is ${data[0]?.ceo}, and the company has a market capitalization of ${data[0]?.marketCap}.`,
-        };
-        break;
-
-      case "Sales Revenue By Segments":
-        summary["revenue_by_segments"] = {
-          key: "revenue_by_segments",
-          segments: data.map(({ segment, revenue }) => ({
-            segment: segment || "Unknown",
-            revenue: revenue || "N/A",
-          })),
-          summary: `The company generates revenue from ${
-            data.length > 1 ? "multiple segments" : "one segment"
-          }, including ${data.map((s) => s.segment).join(", ")}.`,
-        };
-        break;
-
-      case "Quote":
-        summary["stock_quote"] = {
-          key: "stock_quote",
-          symbol: data[0]?.symbol || "N/A",
-          price: data[0]?.price || "N/A",
-          change: data[0]?.change || "N/A",
-          percentChange: data[0]?.changesPercentage + "%" || "N/A",
-          summary: `The stock price of ${data[0]?.symbol} is currently $${data[0]?.price}, with a change of ${data[0]?.change} (${data[0]?.changesPercentage}%).`,
-        };
-        break;
-
-      case "Financial Statements":
-        summary["financial_statements"] = {
-          key: "financial_statements",
-          revenue: data[0]?.revenue || "N/A",
-          netIncome: data[0]?.netIncome || "N/A",
-          earningsPerShare: data[0]?.eps || "N/A",
-          summary: `The company's latest financial report shows revenue of ${data[0]?.revenue}, net income of ${data[0]?.netIncome}, and earnings per share (EPS) of ${data[0]?.eps}.`,
-        };
-        break;
-
-      case "Earnings Transcripts":
-        summary["earnings_transcripts"] = {
-          key: "earnings_transcripts",
-          transcripts: data.map(({ date, content }) => ({
-            date: date || "Unknown",
-            excerpt: content?.slice(0, 200) + "..." || "N/A",
-          })),
-          summary: `Recent earnings calls discussed key topics such as ${data[0]?.content?.slice(
-            0,
-            50
-          )}...`,
-        };
-        break;
-
-      case "News":
-        summary["latest_news"] = {
-          key: "latest_news",
-          articles: data.map(({ title, url, publishedDate }) => ({
-            headline: title || "No title",
-            link: url || "No link",
-            date: publishedDate || "Unknown",
-          })),
-          summary: `Recent news includes articles such as "${data[0]?.title}" published on ${data[0]?.publishedDate}.`,
-        };
-        break;
-
-      case "SEC Filings":
-        summary["sec_filings"] = {
-          key: "sec_filings",
-          filings: data.map(({ date, formType, link }) => ({
-            date: date || "Unknown",
-            form: formType || "N/A",
-            link: link || "No link",
-          })),
-          summary: `Recent SEC filings include ${data[0]?.formType} on ${data[0]?.date}.`,
-        };
-        break;
-
-      case "Insider Trading":
-        summary["insider_trading"] = {
-          key: "insider_trading",
-          transactions: data.map(
-            ({ date, insiderName, transactionType, amount }) => ({
-              date: date || "Unknown",
-              insider: insiderName || "N/A",
-              transaction: transactionType || "N/A",
-              shares: amount || "N/A",
-            })
-          ),
-          summary: `Recent insider transactions include ${data[0]?.insiderName} ${data[0]?.transactionType} ${data[0]?.amount} shares on ${data[0]?.date}.`,
-        };
-        break;
-
-      case "Market Performance":
-        summary["market_performance"] = {
-          key: "market_performance",
-          index: data[0]?.indexName || "N/A",
-          change: data[0]?.change || "N/A",
-          percentChange: data[0]?.changesPercentage + "%" || "N/A",
-          summary: `The market index ${data[0]?.indexName} changed by ${data[0]?.change} points (${data[0]?.changesPercentage}%).`,
-        };
-        break;
-
-      default:
-        summary[category.toLowerCase().replace(/\s+/g, "_")] = {
-          key: category.toLowerCase().replace(/\s+/g, "_"),
-          preview: data.slice(0, 3),
-          summary: `This category (${category}) provides additional financial information.`,
-        };
-    }
-  });
-
-  return summary;
 }
 
 // 📌 Helper function to create a detailed response with pagination

@@ -9,11 +9,13 @@ import ChatInput from "../chat_input/ChatInput";
 import ChatWindowStyles from "./ChatWindow.module.scss";
 import SummaryCard from "@/components/summary_card/SummaryCard";
 import SummaryContainer from "@/components/summary_card/SummaryCard";
+import NewsCard from "@/components/news_card/NewsCard";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
 
   const [responseData, setReponseData] = useState(null);
+  const [dataType, setDataType] = useState(null);
 
   const handleSend = async (message) => {
     // add users new message to the list of messages
@@ -43,9 +45,8 @@ const ChatWindow = () => {
         //   },
         // ]);
 
-        console.log("response", response);
-
-        setReponseData(response);
+        setReponseData(response.data);
+        setDataType(response.key);
       }
     } catch (error) {
       console.error("API Error:", error);
@@ -83,11 +84,15 @@ const ChatWindow = () => {
           </div>
         ))}
       </div>
-
       {responseData && (
         <div>
           <h1>Company Financial Overview</h1>
-          <SummaryCard summaryData={responseData} />
+
+          {dataType === "Earnings Transcripts" && (
+            <SummaryCard summaryData={responseData} />
+          )}
+
+          {dataType === "News" && <NewsCard newsData={responseData} />}
         </div>
       )}
 

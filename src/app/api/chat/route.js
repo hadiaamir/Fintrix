@@ -14,10 +14,11 @@ export async function POST(req) {
     // 1️⃣ Get AI-suggested categories & params
 
     const urlData = await getBestApiUrl(prompt);
+
+    console.log("urlData", urlData);
+
     const url = urlData.apiUrl;
     let resultData = null;
-
-    console.log("hasMultipleTickers(urlData)", hasMultipleTickers(url));
 
     // if its not a news category
     if (urlData.category !== "News" && hasMultipleTickers(url)) {
@@ -30,18 +31,18 @@ export async function POST(req) {
       resultData = await fetchFromAPI(url);
     }
 
-    console.log("resultData", resultData);
+    // console.log("resultData", resultData);
 
     // console.log("apiResponses", apiResponses);
 
-    // // 7️⃣ Format Response: Summary or Detailed
+    // 7️⃣ Format Response: Summary or Detailed
     // const formattedResponse = summary
     //   ? formatSummary(apiResponses)
     //   : formatDetailed(apiResponses);
 
-    // console.log("✅ Final Response:", formattedResponse);
+    console.log("✅ Final Response:", resultData);
 
-    return NextResponse.json({});
+    return NextResponse.json({ key: urlData.category, data: resultData });
   } catch (error) {
     console.error("❌ API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -127,18 +128,25 @@ async function fetchFromAPI(apiUrl) {
 
 async function getBestApiUrl(prompt) {
   const categoryKey = await findBestMatchingCategory(prompt);
+
   if (!categoryKey) return { error: "No matching category found." };
 
   const category = FMP_CATEGORIES[categoryKey];
+
+  console.log("category", category);
+
   let apiUrl = category.api;
-  let params = {};
+  let path = {};
   let queries = {};
 
   // Extract required path parameters
-  if (category.params) {
-    for (const param of category.params) {
+  if (category.path) {
+    for (const param of category.path) {
       const cleanParam = param.replace("*", ""); // Remove required indicator (*)
-      params[cleanParam] = await guessParamValue(cleanParam, prompt);
+
+      console.log("cleanParam", cleanParam);
+
+      path[cleanParam] = await guessParamValue(cleanParam, prompt);
     }
   }
 
@@ -150,12 +158,12 @@ async function getBestApiUrl(prompt) {
     }
   }
 
-  // Append path params to API URL
-  if (Object.keys(params).length > 0) {
-    apiUrl += Object.values(params).join("/");
+  // Append path to API URL
+  if (Object.keys(path).length > 0) {
+    apiUrl += Object.values(path).join("/");
   }
 
-  // Append query params
+  // Append queries to API URL
   if (Object.keys(queries).length > 0) {
     const queryString = new URLSearchParams(queries).toString();
     apiUrl += `?${queryString}`;
@@ -187,7 +195,9 @@ async function findBestMatchingCategory(prompt) {
 
 // Function to intelligently guess parameter values
 async function guessParamValue(param, prompt) {
-  if (param === "symbol") {
+  console.log("param --->", param);
+
+  if (param === "symbol" || param === "tickers") {
     return (await extractStockSymbols(prompt)) || "AAPL"; // Extract stock symbol if possible
   }
   if (param === "year") {
@@ -199,6 +209,15 @@ async function guessParamValue(param, prompt) {
   if (param === "type") {
     return "10-K"; // Default to annual SEC filing
   }
+
+  if (param === "page") {
+    return "0"; // Default to 0
+  }
+
+  if (param === "limit") {
+    return "10"; // Default to 0
+  }
+
   return "default"; // Fallback value
 }
 

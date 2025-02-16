@@ -54,6 +54,11 @@ IPO Calendar
 Merges & Aquisitions
 Charts
 Technical Indicators
+
+
+
+
+ ---
 ETF Holdings
 Mutual Funds Holdings
 ESG
@@ -68,4 +73,8 @@ Forex
 Crypto
 Constituents
 Sales Revenue By Segments
+
+
+
+
 

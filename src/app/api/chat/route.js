@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import FMP_CATEGORIES from "../../../constants/Categories.json";
 
 import OpenAI from "openai";
-import fmpService from "@/api_services/fmpService";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,154 +12,315 @@ export async function POST(req) {
     const { prompt, summary = true } = await req.json();
 
     // 1️⃣ Get AI-suggested categories & params
-    const aiResponse = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `You are a financial AI assistant. Given a user query, return the most relevant API categories and required parameters.
-          Available API categories:\n\n${Object.keys(FMP_CATEGORIES).join(", ")}
-          
-          Extract up to 3 best matching categories and the required query parameters.
-          Format the response strictly as JSON:
-          \`\`\`json
-          {
-            "categories": ["Category1", "Category2"],
-            "params": { "symbol": "AAPL", "query": "Apple Inc" }
-          }
-          \`\`\`
-          `,
-        },
-        { role: "user", content: prompt },
-      ],
-    });
 
-    // 2️⃣ Parse OpenAI response
-    const cleanedResponse = aiResponse.choices[0].message.content
-      .replace(/```json|```/g, "")
-      .trim();
+    const urlData = await getBestApiUrl(prompt);
+    const url = urlData.apiUrl;
+    let resultData = null;
 
-    let parsedResponse;
-    try {
-      parsedResponse = JSON.parse(cleanedResponse);
-    } catch (err) {
-      console.error("Failed to parse OpenAI response:", cleanedResponse);
-      throw new Error("Invalid JSON format from OpenAI");
+    console.log("hasMultipleTickers(urlData)", hasMultipleTickers(url));
+
+    // if its not a news category
+    if (urlData.category !== "News" && hasMultipleTickers(url)) {
+      const serperatedUrls = splitApiUrlByTickers(url);
+
+      console.log("serperatedUrls", serperatedUrls);
+
+      resultData = await fetchMultipleApis(serperatedUrls);
+    } else {
+      resultData = await fetchFromAPI(urlData);
     }
 
-    let { categories, params } = parsedResponse || {
-      categories: [],
-      params: {},
-    };
+    console.log("resultData", resultData);
 
-    // 3️⃣ Ask ChatGPT to Extract Tickers (if query contains company/person names)
-    if (!params.tickers) {
-      console.log("Asking AI to extract tickers...");
+    // // 7️⃣ Format Response: Summary or Detailed
+    // const formattedResponse = summary
+    //   ? formatSummary(apiResponses)
+    //   : formatDetailed(apiResponses);
 
-      const tickerAIResponse = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert in financial markets. Given a user query, extract relevant stock tickers if company names, CEOs, or major investors are mentioned.
-            
-            Respond strictly in JSON format:
-            \`\`\`json
-            { "tickers": ["AAPL", "MSFT"] }
-            \`\`\`
-            If no tickers are found, return an empty list.`,
-          },
-          { role: "user", content: prompt },
-        ],
-      });
+    // console.log("✅ Final Response:", formattedResponse);
 
-      try {
-        const cleanedTickerResponse =
-          tickerAIResponse.choices[0].message.content
-            .replace(/```json|```/g, "")
-            .trim();
-        const tickerData = JSON.parse(cleanedTickerResponse);
-
-        if (tickerData?.tickers?.length) {
-          params.tickers = tickerData.tickers.join(",");
-          console.log("✅ AI Extracted Tickers:", params.tickers);
-        }
-      } catch (err) {
-        console.error(
-          "❌ Failed to parse AI ticker extraction:",
-          tickerAIResponse
-        );
-      }
-    }
-
-    // 4️⃣ If AI fails, fallback to FMP Search API for tickers
-    if (!params.tickers && params.query) {
-      console.log(
-        "🔍 Fetching tickers using FMP Search API for:",
-        params.query
-      );
-
-      const searchResults = await fmpService.fetchData("Company Search", {
-        query: params.query,
-        limit: 5,
-      });
-
-      if (searchResults.length > 0) {
-        params.tickers = searchResults.map((c) => c.symbol).join(",");
-        console.log("✅ FMP Search Mapped Tickers:", params.tickers);
-      }
-    }
-
-    // 5️⃣ Ensure News API gets the correct parameters
-    if (categories.includes("News")) {
-      const today = new Date();
-      const fromDate = new Date();
-      fromDate.setDate(today.getDate() - 60); // Last 60 days
-
-      params.from = params.from || fromDate.toISOString().split("T")[0];
-      params.to = params.to || today.toISOString().split("T")[0];
-      params.limit = params.limit || 50;
-      params.page = params.page || 0;
-    }
-
-    // 6️⃣ Fetch data for each category using UPDATED params
-    console.log("🚀 Fetching API with Params:", params);
-    const apiResponses = await Promise.all(
-      categories.map(async (category) => {
-        let data = await fmpService.fetchData(category, params);
-
-        console.log("data", data);
-
-        // 🛠 **Filter news results manually**
-        // if (category === "News" && params.query) {
-        //   const keywords = params.query.split(", ").map((k) => k.toLowerCase());
-        //   data = data.filter((article) =>
-        //     keywords.some(
-        //       (keyword) =>
-        //         article.title?.toLowerCase().includes(keyword) ||
-        //         article.content?.toLowerCase().includes(keyword)
-        //     )
-        //   );
-        // }
-
-        return { category, data };
-      })
-    );
-
-    console.log("apiResponses", apiResponses);
-
-    // 7️⃣ Format Response: Summary or Detailed
-    const formattedResponse = summary
-      ? formatSummary(apiResponses)
-      : formatDetailed(apiResponses);
-
-    console.log("✅ Final Response:", formattedResponse);
-
-    return NextResponse.json(formattedResponse);
+    return NextResponse.json({});
   } catch (error) {
     console.error("❌ API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+function splitApiUrlByTickers(apiUrl) {
+  if (!apiUrl) return [];
+
+  // Extract base URL and query parameters
+  const [baseUrl, queryString] = apiUrl.split("?");
+  const match = baseUrl.match(/\/([A-Z,]+)$/); // Extract tickers at the end
+
+  if (!match || !match[1]) return [apiUrl]; // Return original URL if no tickers found
+
+  const tickers = match[1].split(","); // Split tickers into an array
+  return tickers.map(
+    (ticker) =>
+      `${baseUrl.replace(match[0], `/${ticker}`)}${
+        queryString ? `?${queryString}` : ""
+      }`
+  );
+}
+
+async function fetchMultipleApis(apiUrls) {
+  if (!apiUrls || !Array.isArray(apiUrls) || apiUrls.length === 0) return null;
+
+  const apiKey = process.env.FMP_API_KEY;
+
+  try {
+    // Fetch data for each API URL
+    const responses = await Promise.all(
+      apiUrls.map(async (url) => {
+        const finalUrl = `${url}${
+          url.includes("?") ? "&" : "?"
+        }apikey=${apiKey}`;
+
+        const response = await fetch(finalUrl);
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+        return response.json();
+      })
+    );
+
+    return responses; // Returns an array of API responses
+  } catch (error) {
+    console.error("Error fetching multiple financial data:", error);
+    return null;
+  }
+}
+
+function hasMultipleTickers(apiUrl) {
+  if (!apiUrl || typeof apiUrl !== "string") return false;
+
+  const tickerRegex = /\/([A-Z,]+)(?:\?|$)/; // Matches tickers in the URL
+  const match = apiUrl.match(tickerRegex);
+
+  return match && match[1].includes(",");
+}
+
+async function fetchFromAPI(apiUrl) {
+  try {
+    // Append API key (replace YOUR_API_KEY with your actual key)
+    const apiKey = process.env.FMP_API_KEY;
+    const finalUrl = `${apiUrl}${
+      apiUrl.includes("?") ? "&" : "?"
+    }apikey=${apiKey}`;
+
+    console.log("finalUrl", finalUrl);
+
+    const response = await fetch(finalUrl);
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching financial data:", error);
+    return null;
+  }
+}
+
+async function getBestApiUrl(prompt) {
+  const categoryKey = await findBestMatchingCategory(prompt);
+  if (!categoryKey) return { error: "No matching category found." };
+
+  const category = FMP_CATEGORIES[categoryKey];
+  let apiUrl = category.api;
+  let params = {};
+  let queries = {};
+
+  // Extract required path parameters
+  if (category.params) {
+    for (const param of category.params) {
+      const cleanParam = param.replace("*", ""); // Remove required indicator (*)
+      params[cleanParam] = await guessParamValue(cleanParam, prompt);
+    }
+  }
+
+  // Extract required query parameters
+  if (category.queries) {
+    for (const query of category.queries) {
+      const cleanQuery = query.replace("*", ""); // Remove required indicator (*)
+      queries[cleanQuery] = await guessParamValue(cleanQuery, prompt);
+    }
+  }
+
+  // Append path params to API URL
+  if (Object.keys(params).length > 0) {
+    apiUrl += Object.values(params).join("/");
+  }
+
+  // Append query params
+  if (Object.keys(queries).length > 0) {
+    const queryString = new URLSearchParams(queries).toString();
+    apiUrl += `?${queryString}`;
+  }
+
+  return { category: categoryKey, apiUrl };
+}
+
+// Function to determine the best category using OpenAI for better matching
+async function findBestMatchingCategory(prompt) {
+  const systemMessage = `You are an AI assistant for financial API queries. Match a user prompt to the best API category.
+  
+  Available categories:
+  ${Object.keys(FMP_CATEGORIES).join(", ")}
+
+  Respond with only the category name that best matches the prompt.`;
+
+  const aiResponse = await openai.chat.completions.create({
+    model: "gpt-4-turbo",
+    messages: [
+      { role: "system", content: systemMessage },
+      { role: "user", content: prompt },
+    ],
+  });
+
+  const bestCategory = aiResponse.choices[0].message.content.trim();
+  return FMP_CATEGORIES[bestCategory] ? bestCategory : null;
+}
+
+// Function to intelligently guess parameter values
+async function guessParamValue(param, prompt) {
+  if (param === "symbol") {
+    return (await extractStockSymbols(prompt)) || "AAPL"; // Extract stock symbol if possible
+  }
+  if (param === "year") {
+    return await getYearFromPrompt(prompt);
+  }
+  if (param === "quarter") {
+    return await getQuarterFromPrompt(prompt);
+  }
+  if (param === "type") {
+    return "10-K"; // Default to annual SEC filing
+  }
+  return "default"; // Fallback value
+}
+
+function getLatestAvailableYearAndQuarter() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentQuarter = Math.ceil((now.getMonth() + 1) / 3); // 1 to 4
+
+  if (currentQuarter === 1) {
+    // If we're in Q1, return last year's Q4
+    return { year: currentYear - 1, quarter: 4 };
+  }
+
+  return { year: currentYear, quarter: currentQuarter - 1 };
+}
+
+async function getQuarterFromPrompt(prompt) {
+  const systemMessage = `You are a financial assistant. Determine the most relevant fiscal quarter based on the user query. 
+  If no specific quarter is mentioned, return the most recent **completed** quarter.
+  
+  Example Inputs and Outputs:
+  - "Get Tesla's Q3 earnings" → "3"
+  - "Show me Apple's Q1 report" → "1"
+  - "Latest earnings report for Microsoft" → "1" (Most recent completed quarter)
+  - "Past earnings call of Amazon" → "4" (Most recent completed quarter)
+  
+  Only return the quarter number (1, 2, 3, or 4), nothing else.`;
+
+  const aiResponse = await openai.chat.completions.create({
+    model: "gpt-4-turbo",
+    messages: [
+      { role: "system", content: systemMessage },
+      { role: "user", content: prompt },
+    ],
+  });
+
+  const extractedQuarter = aiResponse.choices[0].message.content.trim();
+
+  console.log("Extracted Quarter:", extractedQuarter);
+
+  if (/^[1-4]$/.test(extractedQuarter)) {
+    return extractedQuarter;
+  }
+
+  // If ChatGPT didn't find a quarter, use the latest available one
+  const { quarter } = getLatestAvailableYearAndQuarter();
+  return quarter;
+}
+
+async function getYearFromPrompt(prompt) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentQuarter = Math.ceil((now.getMonth() + 1) / 3);
+
+  // Call ChatGPT to extract a year from the prompt
+  const systemMessage = `You are a financial assistant. Extract the most relevant year from the user query.
+  - If the query mentions a specific year, return that year.
+  - If the query says "last year," return ${currentYear - 1}.
+  - If no year is mentioned OR the query says "latest" or "recent," return ${currentYear}.
+  
+  Example Inputs and Outputs:
+  - "Get Tesla's 2021 earnings" → "2021"
+  - "Show me Apple's earnings for last year" → "${currentYear - 1}"
+  - "Recent earnings call for Microsoft" → "${currentYear}"
+  - "What was Amazon's 2020 earnings?" → "2020"
+  
+  Only return the year as a four-digit number, nothing else.`;
+
+  const aiResponse = await openai.chat.completions.create({
+    model: "gpt-4-turbo",
+    messages: [
+      { role: "system", content: systemMessage },
+      { role: "user", content: prompt },
+    ],
+  });
+
+  let extractedYear = parseInt(
+    aiResponse.choices[0].message.content.trim(),
+    10
+  );
+
+  // If no valid year was extracted, default to current year
+  if (isNaN(extractedYear)) {
+    extractedYear = currentYear;
+  }
+
+  // ✅ Adjust for the latest available earnings
+  // If it's Q1, the latest available earnings are from Q4 of the previous year
+  if (currentQuarter === 1 && extractedYear === currentYear) {
+    extractedYear = currentYear - 1;
+  }
+
+  console.log("Determined Year:", extractedYear);
+  return extractedYear;
+}
+
+// Function to extract stock ticker using OpenAI
+async function extractStockSymbols(prompt) {
+  const systemMessage = `You are a financial assistant. Given a user query, determine the most relevant stock ticker(s). 
+  Think beyond direct mentions—consider CEO names, company names, and industries. Return only the most relevant tickers, separated by commas.
+  
+  Examples:
+  - "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?" → "META,MSFT"
+  - "Show me Tesla's stock price" → "TSLA"
+  - "Get Apple's earnings transcript" → "AAPL"
+  - "Latest news on Microsoft and Nvidia" → "MSFT,NVDA"
+  - "What is Amazon's valuation?" → "AMZN"
+  - "How is Google's cloud business doing?" → "GOOGL"
+
+  Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return "UNKNOWN".`;
+
+  const aiResponse = await openai.chat.completions.create({
+    model: "gpt-4-turbo",
+    messages: [
+      { role: "system", content: systemMessage },
+      { role: "user", content: prompt },
+    ],
+  });
+
+  const tickers = aiResponse.choices[0].message.content.trim();
+
+  console.log("Extracted Tickers:", tickers);
+
+  return tickers !== "UNKNOWN" ? tickers.split(",") : [];
 }
 
 // 📌 Helper function to create a summary response

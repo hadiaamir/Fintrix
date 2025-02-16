@@ -40,7 +40,15 @@ export async function POST(req) {
     //   ? formatSummary(apiResponses)
     //   : formatDetailed(apiResponses);
 
-    const flattenedData = resultData.flat(Infinity);
+    console.log("API Response:", resultData);
+
+    let flattenedData = null;
+
+    if (urlData.category === "Dividends") {
+      flattenedData = resultData.historical;
+    } else {
+      flattenedData = resultData.flat(Infinity);
+    }
 
     console.log("✅ Final Response:", flattenedData);
 

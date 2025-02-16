@@ -1,0 +1,72 @@
+// Dividends.module.scss
+
+.dividends {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+
+  &__title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__item {
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #222;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+
+    &-date {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    &-label {
+      font-size: 14px;
+      color: #555;
+    }
+  }
+
+  &__details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+
+    &-item {
+      display: flex;
+      justify-content: space-between;
+
+      strong {
+        font-weight: bold;
+        color: #222;
+      }
+    }
+  }
+}

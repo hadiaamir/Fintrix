@@ -12,6 +12,16 @@ import SummaryContainer from "@/components/summary_card/SummaryCard";
 import NewsCard from "@/components/news_card/NewsCard";
 import CompanyInfoCard from "@/components/company_info_card/CompanyInfoCard";
 import StockSearchCard from "@/components/stock_search_card/StockSearchCard";
+import StockListCard from "@/components/stock_list_card/StockListCard";
+import StockQuoteCard from "@/components/stock_quote_card/StockQuoteCard";
+import FinancialStatementsCard from "@/components/financial_statements_card/FinancialStatementsCard";
+import StatementAnalysisCard from "@/components/statement_analysis_card/StatementAnalysisCard";
+import ValuationCard from "@/components/valuation_card/ValuationCard";
+import PriceTargets from "@/components/price_targets/PriceTargets";
+import UpgradesDowngrades from "@/components/upgrade_downgrades/UpgradesDowngrades";
+import SecFilings from "@/components/sec_filings/SecFilings";
+import Earnings from "@/components/earnings/Earnings";
+import Dividends from "@/components/dividends/Dividends";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
@@ -46,6 +56,8 @@ const ChatWindow = () => {
         //     sender: "bot",
         //   },
         // ]);
+
+        console.log("response.key", response.key);
 
         setReponseData(response.data);
         setDataType(response.key);
@@ -88,7 +100,7 @@ const ChatWindow = () => {
       </div>
       {responseData && (
         <div>
-          <h1>Company Financial Overview</h1>
+          {/* <h1>Company Financial Overview</h1> */}
 
           {dataType === "Company Search" && (
             <StockSearchCard data={responseData} />
@@ -98,11 +110,37 @@ const ChatWindow = () => {
             <CompanyInfoCard data={responseData} />
           )}
 
+          {dataType === "Financial Statements" && (
+            <FinancialStatementsCard data={responseData} />
+          )}
+
+          {dataType === "Statement Analysis" && (
+            <StatementAnalysisCard data={responseData} />
+          )}
+
+          {dataType === "Upgrades & Downgrades" && (
+            <UpgradesDowngrades data={responseData} />
+          )}
+
+          {dataType === "Price Targets" && <PriceTargets data={responseData} />}
+
+          {dataType === "Valuation" && <ValuationCard data={responseData} />}
+
+          {dataType === "Stock List" && <StockListCard data={responseData} />}
+
+          {dataType === "Quote" && <StockQuoteCard data={responseData} />}
+
+          {dataType === "SEC Filings" && <SecFilings data={responseData} />}
+
           {dataType === "Earnings Transcripts" && (
             <SummaryCard data={responseData} />
           )}
 
+          {dataType === "Earnings" && <Earnings data={responseData} />}
+
           {dataType === "News" && <NewsCard data={responseData} />}
+
+          {dataType === "Dividends" && <Dividends data={responseData} />}
         </div>
       )}
 

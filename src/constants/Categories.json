@@ -30,6 +30,7 @@
     "path": ["symbol*", "cik*"],
     "queries": ["period", "datatype", "limit"]
   },
+
   "Statement Analysis": {
     "desc": "Access a variety of financial ratios for a specified company.",
     "api": "https://financialmodelingprep.com/api/v3/key-metrics/",
@@ -47,8 +48,8 @@
   "Price Targets": {
     "desc": "Get analyst price targets for a specified company.",
     "api": "https://financialmodelingprep.com/api/v4/price-target/",
-    "path": ["symbol*"],
-    "queries": []
+    "path": [],
+    "queries": ["symbol*"]
   },
 
   "Upgrades & Downgrades": {
@@ -81,16 +82,16 @@
 
   "Earnings": {
     "desc": "A list of upcoming and past earnings announcements for publicly traded companies, including the date, estimated earnings per share (EPS), and actual EPS (if available).",
-    "api": "https://financialmodelingprep.com/api/v3/earning_calendar",
-    "path": [],
-    "queries": ["from", "to"]
+    "api": "https://financialmodelingprep.com/api/v3/historical/earning_calendar/",
+    "path": ["symbol*"],
+    "queries": ["limit"]
   },
 
   "Dividends": {
-    "desc": "Retrieve information on upcoming and past dividend events.",
-    "api": "https://financialmodelingprep.com/api/v3/dividend_calendar",
-    "path": [],
-    "queries": ["from", "to"]
+    "desc": "A list of historical dividend payments for publicly traded companies, including the date of the dividend payment, the ex-dividend date, and the dividend per share.",
+    "api": "https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/",
+    "path": ["symbol*"],
+    "queries": []
   },
 
   "Splits": {

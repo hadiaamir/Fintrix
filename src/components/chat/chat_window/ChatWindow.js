@@ -69,6 +69,8 @@ const ChatWindow = () => {
   const [loading, setLoading] = useState(false);
   const [currentPrompt, setCurrentPrompt] = useState("");
 
+  const [summarizedResposne, setSummarizedPrompt] = useState("");
+
   const handleSend = async (message) => {
     setLoading(true);
     setCurrentPrompt(message);
@@ -112,13 +114,10 @@ const ChatWindow = () => {
   };
 
   const summarizeContent = async (objectsArray) => {
-    console.log("objectsArray", objectsArray);
-
     try {
       const response = await http.post("/summarize", { objectsArray });
 
-      const result = await response.json();
-      console.log("Summarized content:", result.summary);
+      setSummarizedPrompt(response.summary);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -218,6 +217,13 @@ const ChatWindow = () => {
       {!loading && responseData && (
         <div className={ChatWindowStyles["response-section"]}>
           {/* <h1>Company Financial Overview</h1> */}
+
+          {summarizedResposne && (
+            <div>
+              Summary:
+              {summarizedResposne}
+            </div>
+          )}
 
           {dataType === "Company Search" && (
             <StockSearchCard data={responseData} />

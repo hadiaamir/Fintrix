@@ -1,4 +1,8 @@
-import axios from "axios";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req) {
   try {
@@ -17,31 +21,28 @@ export async function POST(req) {
     // Combine all content fields into a single string for ChatGPT
     const combinedContent = objectsArray.map((obj) => obj.content).join("\n\n");
 
-    // Call OpenAI API for summarization using the correct endpoint and request structure
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions", // Correct endpoint for GPT-3.5 or GPT-4
-      {
-        model: "gpt-4", // Use gpt-4 or gpt-3.5-turbo
-        messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          {
-            role: "user",
-            content: `Summarize the following content:\n\n${combinedContent}`,
-          },
-        ],
-        max_tokens: 150, // Adjust token limit as necessary
-        temperature: 0.7,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // Use environment variable for security
-          "Content-Type": "application/json",
+    // console.log("combinedContent", combinedContent);
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a concise and efficient summarizer.",
         },
-      }
-    );
+        {
+          role: "user",
+          content: `Summarize the following content in one short paragraph:\n\n${combinedContent}`,
+        },
+      ],
+      max_tokens: 80, // Limits response length for brevity
+      temperature: 0.7,
+    });
 
     // Return summarized content
-    const summarizedContent = response.data.choices[0].message.content.trim();
+    const summarizedContent = response.choices[0].message.content.trim();
+
+    console.log("summarizedContent", summarizedContent);
     return new Response(JSON.stringify({ summary: summarizedContent }), {
       status: 200,
     });

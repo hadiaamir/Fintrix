@@ -27,14 +27,44 @@ import IPOCalendar from "@/components/ipo_calendar/IPOCalender";
 import MergersAcquisitions from "@/components/mergers_aquisitions/MergersAcquisitions";
 import StockChart from "@/components/stock_charts/StockChart";
 import TechnicalIndicator from "@/components/technical_indicator/TechnicalIndicator";
+import SlidingPrompts from "@/components/sliding_prompts/SlidingPrompts";
+import Spinner from "@/components/spinner/Spinner";
+
+const prompts1 = [
+  "Compare the revenue growth between Amazon and Microsoft over the past year.",
+  "What is the P/E ratio for Tesla as of the latest earnings report?",
+  "Summarize the executive statements made by Microsoft during their earnings call.",
+  "What guidance did Amazon provide for the next quarter?",
+  "What has been the trend in Apple's gross profit margin over the last 3 years?",
+  "Can you show Tesla’s quarterly earnings growth over the past year?",
+  "What were the key highlights from Apple's Q4 2024 management commentary?",
+  "Can you summarize the CEO's outlook on growth for Tesla?",
+  "How does Tesla’s current market cap compare to that of Apple?",
+  "What’s the operating income for Google in the most recent fiscal year?",
+];
+
+const prompts2 = [
+  "Can you provide a summary of the latest earnings call for Tesla?",
+  "What are the major takeaways from Amazon’s most recent transcript?",
+  "How much revenue did Apple generate in Q4 2024?",
+  "What are Google's expectations for capital expenditures in the coming year?",
+  "What are the recent trends in revenue for Microsoft over the last 5 quarters?",
+  "Can you show me the free cash flow for Amazon from their last earnings report?",
+  "What are the differences in operating margins between Google and Microsoft?",
+  "What is the current debt-to-equity ratio of Microsoft?",
+  "Give me the transcript summary of Google’s latest quarterly results.",
+  "What’s the operating income for Google in the most recent fiscal year?",
+];
 
 const ChatWindow = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(["dw"]);
 
   const [responseData, setReponseData] = useState(null);
   const [dataType, setDataType] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSend = async (message) => {
+    setLoading(true);
     // add users new message to the list of messages
     const newMessage = {
       id: messages.length + 1,
@@ -66,6 +96,7 @@ const ChatWindow = () => {
 
         setReponseData(response.data);
         setDataType(response.key);
+        setLoading(false);
       }
     } catch (error) {
       console.error("API Error:", error);
@@ -74,37 +105,79 @@ const ChatWindow = () => {
   };
 
   return (
-    <div className={ChatWindowStyles["container"]}>
-      {!(messages && messages.length > 0) && (
-        <div className={ChatWindowStyles["greeting"]}>
-          <div className={ChatWindowStyles["greeting__title"]}>
-            How can I help today?
-          </div>
-          <div className={ChatWindowStyles["greeting__subtitle"]}>
-            Ask me anything about financial data, stock insights, and market
-            trends. I'll provide real-time answers to help you make informed
-            decisions.
-          </div>
+    <div
+      className={clsx(
+        ChatWindowStyles["container"],
+        responseData && ChatWindowStyles["container--wide"]
+      )}
+    >
+      <div className={ChatWindowStyles["greeting"]}>
+        <img
+          className={ChatWindowStyles["logo"]}
+          src="/fintrix-logo.svg" // Path relative to the public folder
+          alt="Fintrix Logo"
+          width={100}
+          height={100}
+        />
+
+        {!loading && !responseData && (
+          <>
+            <div className={ChatWindowStyles["greeting__title"]}>
+              How can I help today?
+            </div>
+            <div className={ChatWindowStyles["greeting__subtitle"]}>
+              Ask me anything about financial data, stock insights, and market
+              trends. I'll provide real-time answers to help you make informed
+              decisions.
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* prompt suggestions */}
+      {!loading && !responseData && (
+        <>
+          <SlidingPrompts
+            direction="left"
+            prompts={prompts1}
+            triggerPrompt={handleSend}
+          />
+          <SlidingPrompts
+            direction="right"
+            prompts={prompts2}
+            triggerPrompt={handleSend}
+          />
+        </>
+      )}
+
+      {/*  <div className={ChatWindowStyles["messsages"]}>
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={clsx(
+                ChatWindowStyles["msg"],
+                msg.sender === "user"
+                  ? ChatWindowStyles["msg--user"]
+                  : ChatWindowStyles["msg--bot"]
+              )}
+            >
+              {msg.text}
+            </div>
+          ))}
+        </div>
+
+
+  */}
+
+      {loading && (
+        <div className={ChatWindowStyles["spinner-container"]}>
+          <Spinner />
         </div>
       )}
 
-      <div className={ChatWindowStyles["messsages"]}>
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={clsx(
-              ChatWindowStyles["msg"],
-              msg.sender === "user"
-                ? ChatWindowStyles["msg--user"]
-                : ChatWindowStyles["msg--bot"]
-            )}
-          >
-            {msg.text}
-          </div>
-        ))}
-      </div>
-      {responseData && (
-        <div>
+      {/* RESPONSE SECTION */}
+      {!loading && responseData && (
+        <div className={ChatWindowStyles["response-section"]}>
           {/* <h1>Company Financial Overview</h1> */}
 
           {dataType === "Company Search" && (
@@ -163,7 +236,7 @@ const ChatWindow = () => {
         </div>
       )}
 
-      <ChatInput onSend={handleSend} />
+      {!loading && <ChatInput onSend={handleSend} />}
     </div>
   );
 };

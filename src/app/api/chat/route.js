@@ -351,11 +351,6 @@ const extractExchange = (prompt) => {
   return ""; // Return empty "" if no exchange is found
 };
 
-// Example Usage
-console.log(extractExchange("Find companies listed on NASDAQ"));
-console.log(extractExchange("Show stocks trading on LSE"));
-console.log(extractExchange("What stocks are available on NYSE?"));
-
 function getLatestAvailableYearAndQuarter() {
   const now = new Date();
   const currentYear = now.getFullYear();

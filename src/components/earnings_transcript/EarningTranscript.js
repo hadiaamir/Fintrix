@@ -1,6 +1,6 @@
-import styles from "./SummaryCard.module.scss";
+import styles from "./EarningTranscript.module.scss";
 
-const SummaryCard = ({ data }) => {
+const EarningTranscript = ({ data }) => {
   if (!data || data.length === 0) {
     return <p className={styles["summary-card__empty"]}>No data available.</p>;
   }
@@ -37,4 +37,4 @@ const SummaryCard = ({ data }) => {
   );
 };
 
-export default SummaryCard;
+export default EarningTranscript;

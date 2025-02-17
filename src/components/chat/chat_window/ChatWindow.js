@@ -1,14 +1,13 @@
 "use client";
 // libraries
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import http from "@/utils/http";
 import clsx from "clsx";
 // components
 import ChatInput from "../chat_input/ChatInput";
 // styles
 import ChatWindowStyles from "./ChatWindow.module.scss";
-import SummaryCard from "@/components/summary_card/SummaryCard";
-import SummaryContainer from "@/components/summary_card/SummaryCard";
+
 import NewsCard from "@/components/news_card/NewsCard";
 import CompanyInfoCard from "@/components/company_info_card/CompanyInfoCard";
 import StockSearchCard from "@/components/stock_search_card/StockSearchCard";
@@ -29,8 +28,12 @@ import StockChart from "@/components/stock_charts/StockChart";
 import TechnicalIndicator from "@/components/technical_indicator/TechnicalIndicator";
 import SlidingPrompts from "@/components/sliding_prompts/SlidingPrompts";
 import Spinner from "@/components/spinner/Spinner";
+import EarningTranscript from "@/components/earnings_transcript/EarningTranscript";
 
 const prompts1 = [
+  "Summarize Spotify's latest conference call.",
+  "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?",
+
   "Compare the revenue growth between Amazon and Microsoft over the past year.",
   "What is the P/E ratio for Tesla as of the latest earnings report?",
   "Summarize the executive statements made by Microsoft during their earnings call.",
@@ -44,6 +47,8 @@ const prompts1 = [
 ];
 
 const prompts2 = [
+  "How many new large deals did ServiceNow sign in the last quarter?",
+  "What has Airbnb management said about profitability over the last few earnings calls?",
   "Can you provide a summary of the latest earnings call for Tesla?",
   "What are the major takeaways from Amazon’s most recent transcript?",
   "How much revenue did Apple generate in Q4 2024?",
@@ -57,14 +62,16 @@ const prompts2 = [
 ];
 
 const ChatWindow = () => {
-  const [messages, setMessages] = useState(["dw"]);
+  const [messages, setMessages] = useState([]);
 
   const [responseData, setReponseData] = useState(null);
   const [dataType, setDataType] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentPrompt, setCurrentPrompt] = useState("");
 
   const handleSend = async (message) => {
     setLoading(true);
+    setCurrentPrompt(message);
     // add users new message to the list of messages
     const newMessage = {
       id: messages.length + 1,
@@ -104,6 +111,27 @@ const ChatWindow = () => {
     }
   };
 
+  const summarizeContent = async (objectsArray) => {
+    console.log("objectsArray", objectsArray);
+
+    try {
+      const response = await http.post("/summarize", { objectsArray });
+
+      const result = await response.json();
+      console.log("Summarized content:", result.summary);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      setReponseData(null);
+      setLoading(false);
+      setCurrentPrompt("");
+    };
+  }, []);
+
   return (
     <div
       className={clsx(
@@ -119,6 +147,11 @@ const ChatWindow = () => {
           width={100}
           height={100}
         />
+        {!loading && (
+          <div className={ChatWindowStyles["current-prompt"]}>
+            {currentPrompt}
+          </div>
+        )}
 
         {!loading && !responseData && (
           <>
@@ -172,6 +205,12 @@ const ChatWindow = () => {
       {loading && (
         <div className={ChatWindowStyles["spinner-container"]}>
           <Spinner />
+
+          <div
+            className={ChatWindowStyles["spinner-container__current-prompt"]}
+          >
+            {currentPrompt}
+          </div>
         </div>
       )}
 
@@ -211,7 +250,17 @@ const ChatWindow = () => {
           {dataType === "SEC Filings" && <SecFilings data={responseData} />}
 
           {dataType === "Earnings Transcripts" && (
-            <SummaryCard data={responseData} />
+            <>
+              <button
+                onClick={() => {
+                  summarizeContent(responseData);
+                }}
+              >
+                Summarize
+              </button>
+
+              <EarningTranscript data={responseData} />
+            </>
           )}
 
           {dataType === "Earnings" && <Earnings data={responseData} />}

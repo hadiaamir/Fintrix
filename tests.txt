@@ -1,0 +1,30 @@
+Transcript Summaries
+"Can you provide a summary of the latest earnings call for Tesla?"
+"What were the key highlights from Apple's Q4 2024 management commentary?"
+"Summarize the executive statements made by Microsoft during their earnings call."
+"What are the major takeaways from Amazon’s most recent transcript?"
+"Give me the transcript summary of Google’s latest quarterly results."
+
+Specific Financial Metrics
+"What is the P/E ratio for Tesla as of the latest earnings report?"
+"How much revenue did Apple generate in Q4 2024?"
+"What is the current debt-to-equity ratio of Microsoft?"
+"Can you show me the free cash flow for Amazon from their last earnings report?"
+"What’s the operating income for Google in the most recent fiscal year?"
+
+
+Company Comparisons
+"Compare the revenue growth between Amazon and Microsoft over the past year."
+"How does Tesla’s current market cap compare to that of Apple?"
+"What are the differences in operating margins between Google and Microsoft?"
+
+Forward-Looking Statements
+"What guidance did Amazon provide for the next quarter?"
+"Can you summarize the CEO's outlook on growth for Tesla?"
+"What are Google's expectations for capital expenditures in the coming year?"
+
+
+Financial Trends
+"What are the recent trends in revenue for Microsoft over the last 5 quarters?"
+"Can you show Tesla’s quarterly earnings growth over the past year?"
+"What has been the trend in Apple's gross profit margin over the last 3 years?"

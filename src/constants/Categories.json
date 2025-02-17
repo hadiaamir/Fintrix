@@ -27,8 +27,8 @@
   "Financial Statements": {
     "desc": "Retrieve annual and quarterly income statements for a specified company.",
     "api": "https://financialmodelingprep.com/api/v3/income-statement/",
-    "path": ["symbol*", "cik*"],
-    "queries": ["period", "datatype", "limit"]
+    "path": ["symbol*"],
+    "queries": ["period"]
   },
 
   "Statement Analysis": {
@@ -110,16 +110,15 @@
 
   "Mergers & Acquisitions": {
     "desc": "Retrieve data on recent mergers and acquisitions.",
-    "api": "https://financialmodelingprep.com/api/v3/mergers_acquisitions/search",
+    "api": "https://financialmodelingprep.com/api/v4/mergers-acquisitions/search",
     "path": [],
     "queries": ["name"]
   },
 
   "Charts": {
     "desc": "Obtain historical price charts for a specified company.",
-    "api": "https://financialmodelingprep.com/api/v3/historical-chart/",
-    "path": ["timeframe*", "symbol*"],
-
+    "api": "https://financialmodelingprep.com/api/v3/historical-chart/5min/",
+    "path": ["symbol*"],
     "queries": ["from", "to", "extended"]
   },
 

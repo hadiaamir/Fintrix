@@ -22,6 +22,11 @@ import UpgradesDowngrades from "@/components/upgrade_downgrades/UpgradesDowngrad
 import SecFilings from "@/components/sec_filings/SecFilings";
 import Earnings from "@/components/earnings/Earnings";
 import Dividends from "@/components/dividends/Dividends";
+import Splits from "@/components/splits/Splits";
+import IPOCalendar from "@/components/ipo_calendar/IPOCalender";
+import MergersAcquisitions from "@/components/mergers_aquisitions/MergersAcquisitions";
+import StockChart from "@/components/stock_charts/StockChart";
+import TechnicalIndicator from "@/components/technical_indicator/TechnicalIndicator";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
@@ -141,6 +146,20 @@ const ChatWindow = () => {
           {dataType === "News" && <NewsCard data={responseData} />}
 
           {dataType === "Dividends" && <Dividends data={responseData} />}
+
+          {dataType === "Splits" && <Splits data={responseData} />}
+
+          {dataType === "IPO Calendar" && <IPOCalendar data={responseData} />}
+
+          {dataType === "Mergers & Acquisitions" && (
+            <MergersAcquisitions data={responseData} />
+          )}
+
+          {dataType === "Charts" && <StockChart data={responseData} />}
+
+          {dataType === "Technical Indicators" && (
+            <TechnicalIndicator data={responseData} />
+          )}
         </div>
       )}
 

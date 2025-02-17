@@ -16,6 +16,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-feather": "^2.0.10",
+    "recharts": "^2.15.1",
     "sass": "^1.84.0"
   },
   "devDependencies": {

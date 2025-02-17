@@ -40,8 +40,6 @@ export async function POST(req) {
     //   ? formatSummary(apiResponses)
     //   : formatDetailed(apiResponses);
 
-    console.log("API Response:", resultData);
-
     let flattenedData = null;
 
     if (urlData.category === "Dividends") {
@@ -217,7 +215,7 @@ async function guessParamValue(param, prompt) {
     return await getQuarterFromPrompt(prompt);
   }
   if (param === "type") {
-    return "10-K"; // Default to annual SEC filing
+    return getTechnicalIndicator(prompt) || "10-K"; // Default to annual SEC filing
   }
 
   if (param === "page") {
@@ -236,7 +234,82 @@ async function guessParamValue(param, prompt) {
     return extractQuery(prompt);
   }
 
+  if (param === "name") {
+    return await getCompanyFromPrompt(prompt);
+  }
+
+  if (param === "period") {
+    return 10;
+  }
+
+  if (param === "cik") {
+    return extractCIK(prompt);
+  }
+
   return ""; // Fallback value
+}
+
+function extractCIK(prompt) {
+  // Use a regular expression to find a CIK number (a 10-digit number)
+  const cikPattern = /\b\d{10}\b/;
+  const match = prompt.match(cikPattern);
+
+  // If a CIK is found, return it, else return null
+  if (match) {
+    return match[0];
+  }
+
+  return ""; // Return null if no CIK is found
+}
+
+function getTechnicalIndicator(prompt) {
+  const indicators = [
+    "SMA",
+    "EMA",
+    "MACD",
+    "RSI",
+    "Bollinger Bands",
+    "ADX",
+    "Stochastic",
+    "Fibonacci",
+    "ATR",
+    "Ichimoku",
+  ];
+  const promptUpper = prompt.toUpperCase();
+
+  for (let indicator of indicators) {
+    if (promptUpper.includes(indicator)) {
+      return indicator;
+    }
+  }
+  return null; // Return null if no known indicator is found
+}
+
+async function getCompanyFromPrompt(prompt) {
+  const systemMessage = `You are a financial assistant. Extract the company name from the user query.
+  
+  Example Inputs and Outputs:
+  - "Mergers & Acquisitions Syros" → "Syros"
+  - "Earnings report for Tesla" → "Tesla"
+  - "Price target updates for Microsoft" → "Microsoft"
+  - "Latest SEC filings for Apple Inc." → "Apple Inc."
+  - "Give me the IPO details of Rivian Automotive" → "Rivian Automotive"
+  
+  Only return the company name, nothing else.`;
+
+  const aiResponse = await openai.chat.completions.create({
+    model: "gpt-4-turbo",
+    messages: [
+      { role: "system", content: systemMessage },
+      { role: "user", content: prompt },
+    ],
+  });
+
+  const extractedCompany = aiResponse.choices[0].message.content.trim();
+
+  console.log("Extracted Company:", extractedCompany);
+
+  return extractedCompany;
 }
 
 const extractQuery = (prompt) => {

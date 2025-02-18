@@ -42,6 +42,7 @@ Folder Structure
 Fronted
 
 - React js - used latest react
+- SASS - module scss for all frontend, along with following BEM classnames for organization
 
 Backend
 

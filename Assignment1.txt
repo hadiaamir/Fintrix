@@ -1,0 +1,67 @@
+
+
+
+
+
+
+
+
+Assignment 1:
+Use OpenAI’s API as well as FMP’s financial data API to answer prompts like:
+
+"Summarize Spotify's latest conference call."
+"What has Airbnb management said about profitability over the last few earnings calls?"
+"What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?"
+"How many new large deals did ServiceNow sign in the last quarter?"
+
+Your solution should be able to handle various (random) companies and questions 
+about transcript summaries as well as pulling specific financial metrics.
+
+Your assignment should include a basic UI chat interface (preferably built with React/NextJS)
+which interacts with the backend and displays the AI summaries/responses.
+
+Please send back a public GH repo or invite our emails to a private repo so we can see the code.
+Repo should include a readme with clear instructions on how to run the app locally.
+
+Stock list
+company info
+quote
+financial statements
+Statement Analysis
+Valuation
+Price Targets
+Upgrades & Downgrades
+News
+Earnings Transcript
+SEC Filings
+Earnings
+Dividends
+Splits
+IPO Calendar
+Merges & Aquisitions
+Charts
+Technical Indicators
+
+
+
+
+ ---
+ETF Holdings
+Mutual Funds Holdings
+ESG
+Senate
+Market Performance
+13F Instituation Ownership
+Insider Trading
+Fundraising
+Economics Data
+Commodities
+Forex
+Crypto
+Constituents
+Sales Revenue By Segments
+
+
+
+
+

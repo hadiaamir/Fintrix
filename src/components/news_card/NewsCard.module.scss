@@ -1,0 +1,71 @@
+.news-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__empty {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+  }
+
+  &__item {
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+
+  &__image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+
+  &__content {
+    padding: 1rem;
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+
+    a {
+      text-decoration: none;
+      color: #333;
+
+      &:hover {
+        color: #a6e84b;
+      }
+    }
+  }
+
+  &__text {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #777;
+  }
+
+  &__site {
+    font-weight: bold;
+  }
+
+  &__date {
+    font-style: italic;
+  }
+}

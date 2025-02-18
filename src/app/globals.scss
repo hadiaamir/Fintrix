@@ -1,0 +1,50 @@
+// Define color variables
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+// Dark mode styles
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+// Global styles
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  font-family: "Lexend", sans-serif;
+}
+
+// Universal reset
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+// Link styles
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// Dark mode color scheme
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

@@ -1,0 +1,158 @@
+.container {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+
+  max-width: 600px;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 1rem;
+  margin-bottom: 8rem;
+
+  padding: 1rem;
+
+  &--wide {
+    max-width: 100%;
+  }
+}
+
+.messsages {
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-flow: column;
+}
+
+.spinner-container {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.msg {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 5px 0;
+  width: 100%;
+  max-width: 50%;
+
+  &--user {
+    background-color: #a6e84b;
+    color: #000;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  &--bot {
+    color: #dfdfdf;
+  }
+}
+
+.logo {
+  width: 77px;
+}
+
+.greeting {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding: 0 5rem;
+  text-align: center;
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__subtitle {
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: #5e5e5e;
+    padding: 1rem 0 0 0;
+  }
+}
+
+//
+.response-section {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+
+  padding: 3rem;
+
+  overflow-y: scroll;
+
+  background-color: #0f0f0f;
+
+  height: 100%;
+  width: 100%;
+
+  overflow-x: hidden;
+}
+
+//
+.spinner-container__current-prompt {
+  margin: 1rem 0 0 0;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #5e5e5e;
+  padding: 1rem 0 0 0;
+  text-align: center;
+}
+
+.current-prompt {
+  margin: -2rem 0 1rem;
+
+  font-weight: 400;
+  font-size: 1rem;
+  color: #5e5e5e;
+  padding: 1rem 0 0 0;
+  text-align: center;
+}
+
+//
+
+.summary {
+  &__title {
+    color: #a6e84b;
+    font-weight: 500;
+    font-size: 1.5rem;
+  }
+
+  hr {
+    margin: 1rem 0 1rem 0;
+    border-color: #373737;
+  }
+  &__content {
+    font-weight: 400;
+    font-size: 1rem;
+  }
+
+  margin: 0 0 1rem 0;
+}
+
+.detailed-header {
+  &__title {
+    color: #a6e84b;
+    font-weight: 500;
+    font-size: 1.5rem;
+  }
+
+  hr {
+    margin: 1rem 0 1rem 0;
+    border-color: #373737;
+  }
+}
+
+.detailed-response {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.common-q {
+  margin-top: 1.5rem;
+}

@@ -1,0 +1,65 @@
+.sliding-buttons {
+  overflow: visible;
+  white-space: nowrap;
+  width: 100%;
+
+  &__wrapper {
+    display: flex;
+    gap: 34px;
+    width: max-content;
+  }
+
+  &__item {
+    background-color: #141414;
+    color: #bbbbbb;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: "Lexend", sans-serif;
+
+    white-space: nowrap;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    overflow-wrap: break-word;
+    white-space: normal;
+
+    width: 273px;
+    height: 73px;
+
+    &:hover {
+      background-color: #242424;
+    }
+  }
+}
+
+/* Left to Right Animation */
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scroll-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Apply animations based on the direction */
+.slide-left {
+  animation: scroll-left 100s linear infinite;
+}
+
+.slide-right {
+  animation: scroll-right 100s linear infinite;
+}

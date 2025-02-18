@@ -1,0 +1,81 @@
+.financial-statements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+
+  &__empty {
+    text-align: center;
+    font-size: 18px;
+    color: #777;
+  }
+
+  &__item {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  &__header {
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+
+    h2 {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      color: #666;
+    }
+
+    td:first-child {
+      font-weight: bold;
+      color: #222;
+    }
+
+    td:last-child {
+      text-align: right;
+    }
+  }
+
+  &__links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+
+    a {
+      color: #a6e84b;
+      text-decoration: none;
+      font-weight: bold;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

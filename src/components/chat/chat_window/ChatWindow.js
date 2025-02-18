@@ -33,7 +33,6 @@ import EarningTranscript from "@/components/earnings_transcript/EarningTranscrip
 const prompts1 = [
   "Summarize Spotify's latest conference call.",
   "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?",
-
   "Compare the revenue growth between Amazon and Microsoft over the past year.",
   "What is the P/E ratio for Tesla as of the latest earnings report?",
   "Summarize the executive statements made by Microsoft during their earnings call.",

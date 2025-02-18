@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import FMP_CATEGORIES from "../../../constants/Categories.json";
+import COMMON_TICKERS from "../../../constants/CommonTickers.json";
 
 import OpenAI from "openai";
 
@@ -11,11 +12,7 @@ export async function POST(req) {
   try {
     const { prompt, summary = true } = await req.json();
 
-    // 1️⃣ Get AI-suggested categories & params
-
     const urlData = await getBestApiUrl(prompt);
-
-    console.log("urlData", urlData);
 
     const url = urlData.apiUrl;
     let resultData = null;
@@ -24,21 +21,10 @@ export async function POST(req) {
     if (urlData.category !== "News" && hasMultipleTickers(url)) {
       const serperatedUrls = splitApiUrlByTickers(url);
 
-      console.log("serperatedUrls", serperatedUrls);
-
       resultData = await fetchMultipleApis(serperatedUrls);
     } else {
       resultData = await fetchFromAPI(url);
     }
-
-    // console.log("resultData", resultData);
-
-    // console.log("apiResponses", apiResponses);
-
-    // 7️⃣ Format Response: Summary or Detailed
-    // const formattedResponse = summary
-    //   ? formatSummary(apiResponses)
-    //   : formatDetailed(apiResponses);
 
     let flattenedData = null;
 
@@ -47,8 +33,6 @@ export async function POST(req) {
     } else {
       flattenedData = resultData.flat(Infinity);
     }
-
-    console.log("✅ Final Response:", flattenedData);
 
     return NextResponse.json({ key: urlData.category, data: flattenedData });
   } catch (error) {
@@ -298,7 +282,7 @@ async function getCompanyFromPrompt(prompt) {
   Only return the company name, nothing else.`;
 
   const aiResponse = await openai.chat.completions.create({
-    model: "gpt-4-turbo",
+    model: "gpt-3.5-turbo",
     messages: [
       { role: "system", content: systemMessage },
       { role: "user", content: prompt },
@@ -377,7 +361,7 @@ async function getQuarterFromPrompt(prompt) {
   Only return the quarter number (1, 2, 3, or 4), nothing else.`;
 
   const aiResponse = await openai.chat.completions.create({
-    model: "gpt-4-turbo",
+    model: "gpt-3.5-turbo",
     messages: [
       { role: "system", content: systemMessage },
       { role: "user", content: prompt },
@@ -417,7 +401,7 @@ async function getYearFromPrompt(prompt) {
   Only return the year as a four-digit number, nothing else.`;
 
   const aiResponse = await openai.chat.completions.create({
-    model: "gpt-4-turbo",
+    model: "gpt-3.5-turbo",
     messages: [
       { role: "system", content: systemMessage },
       { role: "user", content: prompt },
@@ -446,9 +430,20 @@ async function getYearFromPrompt(prompt) {
 
 // Function to extract stock ticker using OpenAI
 async function extractStockSymbols(prompt) {
+  // Check if the company name exists in the COMMON_TICKERS map first
+  const companyName = prompt.toLowerCase().trim();
+  const tickerFromMap = Object.keys(COMMON_TICKERS).find((name) =>
+    name.toLowerCase().includes(companyName)
+  );
+
+  if (tickerFromMap) {
+    // Return ticker from map if found
+    return [COMMON_TICKERS[tickerFromMap]];
+  }
+
   const systemMessage = `You are a financial assistant. Given a user query, determine the most relevant stock ticker(s). 
   Think beyond direct mentions—consider CEO names, company names, and industries. Return only the most relevant tickers, separated by commas.
-  
+
   Examples:
   - "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?" → "META,MSFT"
   - "Show me Tesla's stock price" → "TSLA"
@@ -459,19 +454,34 @@ async function extractStockSymbols(prompt) {
 
   Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return "UNKNOWN".`;
 
-  const aiResponse = await openai.chat.completions.create({
-    model: "gpt-4-turbo",
-    messages: [
-      { role: "system", content: systemMessage },
-      { role: "user", content: prompt },
-    ],
-  });
+  try {
+    const aiResponse = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt },
+      ],
+    });
 
-  const tickers = aiResponse.choices[0].message.content.trim();
+    let tickers = aiResponse.choices[0].message.content.trim();
 
-  console.log("Extracted Tickers:", tickers);
+    // If "UNKNOWN" is returned, handle that case by returning an empty array
+    if (tickers === "UNKNOWN" || !tickers) {
+      return [];
+    }
 
-  return tickers !== "UNKNOWN" ? tickers.split(",") : [];
+    // Remove any quotation marks from the tickers
+    tickers = tickers.replace(/['"]/g, "");
+
+    // Split tickers by commas and return them as an array
+    return tickers
+      .split(",")
+      .map((ticker) => ticker.trim())
+      .filter(Boolean);
+  } catch (error) {
+    console.error("Error extracting stock symbols:", error);
+    return [];
+  }
 }
 
 // 📌 Helper function to create a detailed response with pagination

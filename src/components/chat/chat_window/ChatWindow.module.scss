@@ -111,3 +111,42 @@
   padding: 1rem 0 0 0;
   text-align: center;
 }
+
+//
+
+.summary {
+  &__title {
+    color: #a6e84b;
+    font-weight: 500;
+    font-size: 1.5rem;
+  }
+
+  hr {
+    margin: 1rem 0 1rem 0;
+    border-color: #373737;
+  }
+  &__content {
+    font-weight: 400;
+    font-size: 1rem;
+  }
+
+  margin: 0 0 1rem 0;
+}
+
+.detailed-header {
+  &__title {
+    color: #a6e84b;
+    font-weight: 500;
+    font-size: 1.5rem;
+  }
+
+  hr {
+    margin: 1rem 0 1rem 0;
+    border-color: #373737;
+  }
+}
+
+.detailed-response {
+  max-height: 400px;
+  overflow-y: scroll;
+}

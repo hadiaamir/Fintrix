@@ -87,24 +87,24 @@ const ChatWindow = () => {
       // call chat api
       const response = await http.post("/chat", { prompt: message });
 
+      console.log("response", response);
+
       if (!response) throw new Error(data.error || "Something went wrong");
 
       // if the response is succesful
       if (response) {
-        // // update the messages with the AI's response added
-        // setMessages((prev) => [
-        //   ...prev,
-        //   {
-        //     id: prev.length + 1,
-        //     text: response.data,
-        //     sender: "bot",
-        //   },
-        // ]);
-
         console.log("response.key", response.key);
 
-        setReponseData(response.data);
-        setDataType(response.key);
+        if (response.data.length > 0) {
+          console.log("here");
+
+          await summarizeContent(response.data);
+          setReponseData(response.data);
+          setDataType(response.key);
+        } else {
+          resetComponent();
+        }
+
         setLoading(false);
       }
     } catch (error) {
@@ -123,11 +123,15 @@ const ChatWindow = () => {
     }
   };
 
+  const resetComponent = () => {
+    setReponseData(null);
+    setLoading(false);
+    setCurrentPrompt("");
+  };
+
   useEffect(() => {
     return () => {
-      setReponseData(null);
-      setLoading(false);
-      setCurrentPrompt("");
+      resetComponent();
     };
   }, []);
 
@@ -219,75 +223,70 @@ const ChatWindow = () => {
           {/* <h1>Company Financial Overview</h1> */}
 
           {summarizedResposne && (
-            <div>
-              Summary:
-              {summarizedResposne}
+            <div className={ChatWindowStyles["summary"]}>
+              <div className={ChatWindowStyles["summary__title"]}>Summary</div>
+              <hr></hr>
+              <div className={ChatWindowStyles["summary__content"]}>
+                {summarizedResposne}
+              </div>
             </div>
           )}
 
-          {dataType === "Company Search" && (
-            <StockSearchCard data={responseData} />
-          )}
-
-          {dataType === "Company Info" && (
-            <CompanyInfoCard data={responseData} />
-          )}
-
-          {dataType === "Financial Statements" && (
-            <FinancialStatementsCard data={responseData} />
-          )}
-
-          {dataType === "Statement Analysis" && (
-            <StatementAnalysisCard data={responseData} />
-          )}
-
-          {dataType === "Upgrades & Downgrades" && (
-            <UpgradesDowngrades data={responseData} />
-          )}
-
-          {dataType === "Price Targets" && <PriceTargets data={responseData} />}
-
-          {dataType === "Valuation" && <ValuationCard data={responseData} />}
-
-          {dataType === "Stock List" && <StockListCard data={responseData} />}
-
-          {dataType === "Quote" && <StockQuoteCard data={responseData} />}
-
-          {dataType === "SEC Filings" && <SecFilings data={responseData} />}
-
-          {dataType === "Earnings Transcripts" && (
-            <>
-              <button
-                onClick={() => {
-                  summarizeContent(responseData);
-                }}
-              >
-                Summarize
-              </button>
-
-              <EarningTranscript data={responseData} />
-            </>
-          )}
-
-          {dataType === "Earnings" && <Earnings data={responseData} />}
-
-          {dataType === "News" && <NewsCard data={responseData} />}
-
-          {dataType === "Dividends" && <Dividends data={responseData} />}
-
-          {dataType === "Splits" && <Splits data={responseData} />}
-
-          {dataType === "IPO Calendar" && <IPOCalendar data={responseData} />}
-
-          {dataType === "Mergers & Acquisitions" && (
-            <MergersAcquisitions data={responseData} />
-          )}
-
-          {dataType === "Charts" && <StockChart data={responseData} />}
-
-          {dataType === "Technical Indicators" && (
-            <TechnicalIndicator data={responseData} />
-          )}
+          <div>
+            <div className={ChatWindowStyles["detailed-header"]}>
+              <div className={ChatWindowStyles["detailed-header__title"]}>
+                Detailed
+              </div>
+              <hr></hr>
+            </div>
+            <div className={ChatWindowStyles["detailed-response"]}>
+              {dataType === "Company Search" && (
+                <StockSearchCard data={responseData} />
+              )}
+              {dataType === "Company Info" && (
+                <CompanyInfoCard data={responseData} />
+              )}
+              {dataType === "Financial Statements" && (
+                <FinancialStatementsCard data={responseData} />
+              )}
+              {dataType === "Statement Analysis" && (
+                <StatementAnalysisCard data={responseData} />
+              )}
+              {dataType === "Upgrades & Downgrades" && (
+                <UpgradesDowngrades data={responseData} />
+              )}
+              {dataType === "Price Targets" && (
+                <PriceTargets data={responseData} />
+              )}
+              {dataType === "Valuation" && (
+                <ValuationCard data={responseData} />
+              )}
+              {dataType === "Stock List" && (
+                <StockListCard data={responseData} />
+              )}
+              {dataType === "Quote" && <StockQuoteCard data={responseData} />}
+              {dataType === "SEC Filings" && <SecFilings data={responseData} />}
+              {dataType === "Earnings Transcripts" && (
+                <>
+                  <EarningTranscript data={responseData} />
+                </>
+              )}
+              {dataType === "Earnings" && <Earnings data={responseData} />}
+              {dataType === "News" && <NewsCard data={responseData} />}
+              {dataType === "Dividends" && <Dividends data={responseData} />}
+              {dataType === "Splits" && <Splits data={responseData} />}
+              {dataType === "IPO Calendar" && (
+                <IPOCalendar data={responseData} />
+              )}
+              {dataType === "Mergers & Acquisitions" && (
+                <MergersAcquisitions data={responseData} />
+              )}
+              {dataType === "Charts" && <StockChart data={responseData} />}
+              {dataType === "Technical Indicators" && (
+                <TechnicalIndicator data={responseData} />
+              )}
+            </div>
+          </div>
         </div>
       )}
 

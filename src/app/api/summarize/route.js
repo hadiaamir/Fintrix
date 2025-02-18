@@ -18,11 +18,23 @@ export async function POST(req) {
       );
     }
 
-    // Combine all content fields into a single string for ChatGPT
-    const combinedContent = objectsArray.map((obj) => obj.content).join("\n\n");
+    // Helper function to convert object fields into a summary-friendly format
+    const formatObjectForSummary = (obj) => {
+      if (obj.content) {
+        return obj.content; // Use content if available
+      } else {
+        return Object.entries(obj)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join("\n"); // Convert key-value pairs into readable text
+      }
+    };
 
-    // console.log("combinedContent", combinedContent);
+    // Combine formatted content into a single string for ChatGPT
+    const combinedContent = objectsArray
+      .map(formatObjectForSummary)
+      .join("\n\n");
 
+    // Request ChatGPT to summarize the combined content
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo",
       messages: [

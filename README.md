@@ -32,3 +32,9 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Design Doc
 
 - refer to design doc in /DesignDoc.md
+
+
+## UI/UX Design
+
+![image](https://github.com/user-attachments/assets/3dae056f-614b-4d88-acbb-748fa0e980f2)
+

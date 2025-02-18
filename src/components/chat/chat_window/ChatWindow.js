@@ -185,25 +185,6 @@ const ChatWindow = () => {
         </>
       )}
 
-      {/*  <div className={ChatWindowStyles["messsages"]}>
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={clsx(
-                ChatWindowStyles["msg"],
-                msg.sender === "user"
-                  ? ChatWindowStyles["msg--user"]
-                  : ChatWindowStyles["msg--bot"]
-              )}
-            >
-              {msg.text}
-            </div>
-          ))}
-        </div>
-
-
-  */}
-
       {loading && (
         <div className={ChatWindowStyles["spinner-container"]}>
           <Spinner />
@@ -285,6 +266,25 @@ const ChatWindow = () => {
                 <TechnicalIndicator data={responseData} />
               )}
             </div>
+          </div>
+
+          <div className={ChatWindowStyles["common-q"]}>
+            <div className={ChatWindowStyles["detailed-header"]}>
+              <div className={ChatWindowStyles["detailed-header__title"]}>
+                Common Questions
+              </div>
+              <hr></hr>
+            </div>
+            <SlidingPrompts
+              direction="left"
+              prompts={prompts1}
+              triggerPrompt={handleSend}
+            />
+            <SlidingPrompts
+              direction="right"
+              prompts={prompts2}
+              triggerPrompt={handleSend}
+            />
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import FMP_CATEGORIES from "../../constants/Categories.json";
 import COMMON_TICKERS from "../../constants/CommonTickers.json";
+import UtilityService from "./UtilityService";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -154,7 +155,7 @@ const ChatGPTService = {
 
     try {
       const aiResponse = await openai.chat.completions.create({
-        model: "gpt-4-turbo",
+        model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: systemMessage },
           { role: "user", content: prompt },
@@ -194,7 +195,7 @@ const ChatGPTService = {
       Respond with only the category name that best matches the prompt.`;
 
     const aiResponse = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+      model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: systemMessage },
         { role: "user", content: prompt },

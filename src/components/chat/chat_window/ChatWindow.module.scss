@@ -90,6 +90,8 @@
 
   height: 100%;
   width: 100%;
+
+  overflow-x: hidden;
 }
 
 //
@@ -149,4 +151,8 @@
 .detailed-response {
   max-height: 400px;
   overflow-y: scroll;
+}
+
+.common-q {
+  margin-top: 1.5rem;
 }

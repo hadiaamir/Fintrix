@@ -22,6 +22,9 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## HOW TO RUN THE APP
 
-1. add .env file I sent to your emails
-2. go to terminal and enter npm run dev
-3. app running!
+1. git clone https://github.com/hadiaamir/finchat-a1.git
+2. cd into finchat-a1
+3. add .env file into root. -- I sent to your emails (if on linux you might have to export ENV_VARIABLE=... for each if it doesnt work)
+4. npm install
+5. go to terminal and enter npm run dev
+6. app running!

@@ -28,3 +28,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 4. npm install
 5. go to terminal and enter npm run dev
 6. app running!
+
+## Design Doc
+
+- refer to design doc in /DesignDoc.md

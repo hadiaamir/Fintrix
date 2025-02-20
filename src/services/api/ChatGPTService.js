@@ -131,17 +131,27 @@ const ChatGPTService = {
    * @returns {Array} - An array of stock ticker symbols.
    */
   extractStockSymbols: async function (prompt) {
+    // Clean up the prompt by removing unnecessary characters (apostrophes, quotation marks, etc.)
     const companyName = prompt.toLowerCase().trim();
+    const cleanedCompanyName = companyName.replace(/['"]/g, "");
+
+    // Check if the cleaned company name matches any tickers in the COMMON_TICKERS map
     const tickerFromMap = Object.keys(COMMON_TICKERS).find((name) =>
-      name.toLowerCase().includes(companyName)
+      name.toLowerCase().includes(cleanedCompanyName)
     );
 
+    console.log("tickerFromMap", tickerFromMap);
+
+    // If a match is found in the map, return the corresponding ticker
     if (tickerFromMap) {
-      return [COMMON_TICKERS[tickerFromMap]];
+      return [COMMON_TICKERS[tickerFromMap]]; // Return the ticker if found
     }
 
+    // If no match found in the map, use the OpenAI API to get the ticker(s)
     const systemMessage = `You are a financial assistant. Given a user query, determine the most relevant stock ticker(s). 
       Think beyond direct mentions—consider CEO names, company names, and industries. Return only the most relevant tickers, separated by commas.
+  
+      IMPORTANT: Ensure "ServiceNow" maps to "NOW".
   
       Examples:
       - "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?" → "META,MSFT"
@@ -150,10 +160,14 @@ const ChatGPTService = {
       - "Latest news on Microsoft and Nvidia" → "MSFT,NVDA"
       - "What is Amazon's valuation?" → "AMZN"
       - "How is Google's cloud business doing?" → "GOOGL"
+      - "Tell me about ServiceNow" → "NOW"
   
-      Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return "UNKNOWN".`;
+      **Fallback Rule**: If no relevant ticker is found, return nothing (empty array).
+  
+      Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return an empty array.`;
 
     try {
+      // Call the OpenAI API for ticker extraction
       const aiResponse = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [
@@ -164,19 +178,23 @@ const ChatGPTService = {
 
       let tickers = aiResponse.choices[0].message.content.trim();
 
+      // If the AI response is "UNKNOWN" or empty, return nothing (empty array)
       if (tickers === "UNKNOWN" || !tickers) {
-        return [];
+        console.log("No relevant tickers found.");
+        return []; // Return nothing (empty array)
       }
 
+      // Clean up the AI response by removing unwanted characters (quotes, etc.)
       tickers = tickers.replace(/['"]/g, "");
 
+      // Split the tickers by commas, trim spaces, and filter out any empty results
       return tickers
         .split(",")
         .map((ticker) => ticker.trim())
         .filter(Boolean);
     } catch (error) {
       console.error("Error extracting stock symbols:", error);
-      return [];
+      return []; // Return nothing (empty array) in case of error
     }
   },
 

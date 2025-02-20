@@ -29,6 +29,9 @@ export async function POST(req) {
     // Get the best API URL and category based on the provided prompt
     const urlData = await FMPService.getBestApiUrl(prompt);
     const url = urlData.apiUrl; // The URL to query
+
+    console.log("url", url);
+
     let resultData = null; // Placeholder for API response data
 
     // Check if it's not a news category and involves multiple tickers
@@ -43,6 +46,8 @@ export async function POST(req) {
       resultData = await FMPService.fetchFromAPI(url);
     }
 
+    console.log("resultData", resultData);
+
     let flattenedData = null; // Placeholder for processed data
 
     // If the category is "Dividends", extract the historical dividend data
@@ -51,35 +56,30 @@ export async function POST(req) {
     }
 
     if (urlData.category === "Financial Statements") {
-      let yearFromPrompt = await UtilityService.extractYearFromPrompt(prompt);
-      let quarterFromPrompt = await UtilityService.extractQuarterFromPrompt(
-        prompt
-      );
+      flattenedData = await UtilityService.extractYearAndPeriodData({
+        prompt,
+        resultData,
+      });
 
-      console.log("YEAR -----", yearFromPrompt);
-      console.log("QUARTER -----", quarterFromPrompt);
-
-      if (globalState.period === "quarterly") {
-        flattenedData = await UtilityService.getQuarterData({
-          data: resultData.flat(Infinity),
-          year: yearFromPrompt,
-          quarter: quarterFromPrompt,
-        });
-      }
-
-      // TODO: if annual then get the annual report
+      console.log("RESPOINSE ", flattenedData);
     } else {
       // Otherwise, flatten the response data (in case of nested arrays)
       flattenedData = resultData.flat(Infinity);
     }
+
+    // TODO: if annual then get the annual report
 
     console.log("GLOBAL ------ ", globalState);
     console.log("URL ------- ", url);
     console.log("CATEGORY ------- ", urlData.category);
     console.log("DATA -------- ", flattenedData);
 
-    let summarizedData = await ChatGPTService.summarizeContent(flattenedData);
-    console.log("summarizedData", summarizedData);
+    let summarizedData = "";
+
+    if (flattenedData) {
+      summarizedData = await ChatGPTService.summarizeContent(flattenedData);
+      console.log("summarizedData", summarizedData);
+    }
 
     // Save the processed data to Redis using the prompt as the key
     await redisClient.set(
@@ -93,6 +93,9 @@ export async function POST(req) {
         EX: 60 * 60 * 24 * 30, // Set an expiration time of 30 days (in seconds)
       }
     );
+
+    // clear global state
+    Object.keys(globalState).forEach((key) => delete globalState[key]);
 
     // Return the processed data as a JSON response
     return NextResponse.json({

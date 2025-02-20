@@ -1,81 +1,72 @@
-.financial-statements {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+.container {
   padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-  &__empty {
+.item {
+  margin-bottom: 20px;
+
+  &--no-data {
     text-align: center;
     font-size: 18px;
-    color: #777;
+    color: lighten(#333, 30%);
+  }
+}
+
+.header {
+  margin-bottom: 15px;
+
+  &__title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
   }
 
-  &__item {
-    background: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 20px;
-    width: 400px;
-    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
-
-    &:hover {
-      transform: scale(1.02);
-    }
+  &__info {
+    font-size: 14px;
+    color: #555;
   }
+}
 
-  &__header {
-    text-align: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
 
-    h2 {
-      font-size: 20px;
-      font-weight: bold;
-      color: #333;
-    }
+.table__header-label {
+  background-color: #f1f1f1;
+  color: #000;
+  font-weight: bold;
+  padding: 12px;
+  text-align: left;
+}
 
-    p {
-      font-size: 14px;
-      color: #666;
-    }
-  }
+.table-cell {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
 
-  &__table {
-    width: 100%;
-    border-collapse: collapse;
+.table-cell__strong {
+  font-weight: bold;
+}
 
-    td {
-      padding: 8px;
-      border-bottom: 1px solid #eee;
-      color: #666;
-    }
+.links {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
 
-    td:first-child {
-      font-weight: bold;
-      color: #222;
-    }
+.links__link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
 
-    td:last-child {
-      text-align: right;
-    }
-  }
-
-  &__links {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-
-    a {
-      color: #a6e84b;
-      text-decoration: none;
-      font-weight: bold;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+  &:hover {
+    color: #0056b3;
+    text-decoration: underline;
   }
 }

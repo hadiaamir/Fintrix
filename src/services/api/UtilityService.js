@@ -1,4 +1,5 @@
 import ChatGPTService from "./ChatGPTService";
+import { globalState } from "@/lib/globalState";
 
 const UtilityService = {
   /**
@@ -181,11 +182,36 @@ const UtilityService = {
       const itemPeriod = item.period; // 'Q1', 'Q2', etc.
       const itemYear = item.calendarYear; // i.e. 2024
 
-      return itemPeriod === period && itemYear === year;
+      return itemPeriod == period && itemYear == year;
     });
 
     // Ensure the result is an array, even if it's a single object
     return Array.isArray(quarterData) ? quarterData : [quarterData];
+  },
+
+  /**
+   * Gets the income statement for a specific year.
+   *
+   * @param {Array} data - The income statement data from the API response.
+   * @param {number} year - The year for the desired annual data (e.g., 2024).
+   * @returns {Object|null} - The income statement for the specified year, or null if not found.
+   */
+  getAnnualData: function ({ data, year }) {
+    // Find the entry that matches the year
+    const annualData = data.find((item) => {
+      const itemYear = item.calendarYear; // i.e. 2024
+
+      console.log("itemYear", itemYear);
+
+      console.log("year", year);
+
+      return itemYear == year;
+    });
+
+    // Ensure the result is an array, even if it's a single object
+    const result = Array.isArray(annualData) ? annualData : [annualData];
+
+    return result;
   },
 
   /**
@@ -230,6 +256,53 @@ const UtilityService = {
     }
   },
 
+  extractYearAndPeriodData: async function ({ prompt, resultData }) {
+    let result = [];
+
+    // Extract year from prompt using regex
+    let yearFromPrompt = await this.extractYearFromPrompt(prompt);
+
+    // Fallback: Use ChatGPT if regex fails
+    if (!yearFromPrompt) {
+      yearFromPrompt = await ChatGPTService.getYearFromPrompt(prompt);
+    }
+
+    console.log("YEAR -----", yearFromPrompt);
+
+    console.log("inner globalState", globalState);
+
+    if (globalState.period === "quarterly") {
+      // Extract quarter from prompt using regex
+      let quarterFromPrompt = await this.extractQuarterFromPrompt(prompt);
+
+      // Fallback: Use ChatGPT if regex fails
+      if (!quarterFromPrompt) {
+        quarterFromPrompt = await ChatGPTService.getQuarterFromPrompt(prompt);
+      }
+
+      console.log("QUARTER -----", quarterFromPrompt);
+
+      result = await this.getQuarterData({
+        data: resultData.flat(Infinity),
+        year: yearFromPrompt,
+        quarter: quarterFromPrompt,
+      });
+    } else if (globalState.period === "annual") {
+      console.log("ANNUAL -----");
+
+      console.log("yearFromPrompt", yearFromPrompt);
+
+      result = await this.getAnnualData({
+        data: resultData.flat(Infinity),
+        year: yearFromPrompt,
+      });
+    }
+
+    console.log("result -->>>>> ", result);
+
+    return result;
+  },
+
   /**
    * Function to intelligently guess parameter values based on the provided prompt
    *
@@ -239,7 +312,7 @@ const UtilityService = {
    */
   guessParamValue: async function (param, prompt) {
     if (param === "symbol" || param === "tickers") {
-      return (await ChatGPTService.extractStockSymbols(prompt)) || "AAPL"; // Extract stock symbol if possible
+      return await ChatGPTService.extractStockSymbols(prompt); // Extract stock symbol if possible
     }
     if (param === "year") {
       return await ChatGPTService.getYearFromPrompt(prompt);

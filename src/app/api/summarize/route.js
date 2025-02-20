@@ -4,7 +4,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const MAX_TOKENS = 8000; // Keep some buffer to avoid exceeding limits
+const MAX_TOKENS = 8000; // Total token limit (adjust if needed)
+const CHUNK_SIZE = 4000; // Split content into manageable chunks
+const SUMMARY_MAX_TOKENS = 150; // Increased token limit for better summaries
 
 // Function to trim text to a safe token limit
 function trimTextToTokenLimit(text, maxTokens) {
@@ -23,30 +25,53 @@ function splitIntoChunks(text, chunkSize) {
   return chunks;
 }
 
+async function summarizeChunk(chunk) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a detailed and thorough summarizer, providing an in-depth explanation of the content.",
+        },
+        {
+          role: "user",
+          content: `Please provide a detailed, thorough explanation of the following content:\n\n${chunk}`,
+        },
+      ],
+      max_tokens: SUMMARY_MAX_TOKENS, // More room for a detailed explanation
+      temperature: 0.7,
+    });
+
+    return response.choices[0]?.message?.content?.trim() || "";
+  } catch (error) {
+    console.error("Error summarizing chunk:", error);
+    return ""; // Return empty string on failure to avoid breaking response
+  }
+}
+
 export async function POST(req) {
   try {
     // Parse JSON body from request
     const { objectsArray } = await req.json();
 
-    if (!objectsArray || !Array.isArray(objectsArray)) {
+    if (!Array.isArray(objectsArray) || objectsArray.length === 0) {
       return new Response(
         JSON.stringify({
-          error: "Invalid input. Expected an array of objects.",
+          error: "Invalid input. Expected a non-empty array of objects.",
         }),
         { status: 400 }
       );
     }
 
     // Helper function to convert object fields into a summary-friendly format
-    const formatObjectForSummary = (obj) => {
-      if (obj.content) {
-        return obj.content; // Use content if available
-      } else {
-        return Object.entries(obj)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join("\n"); // Convert key-value pairs into readable text
-      }
-    };
+    const formatObjectForSummary = (obj) =>
+      obj.content
+        ? obj.content
+        : Object.entries(obj)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join("\n");
 
     // Combine formatted content into a single string
     const combinedContent = objectsArray
@@ -56,36 +81,15 @@ export async function POST(req) {
     // Trim text if it's too long
     const trimmedContent = trimTextToTokenLimit(combinedContent, MAX_TOKENS);
 
-    // If the content is still too large, split it into smaller chunks
-    const contentChunks = splitIntoChunks(trimmedContent, 4000);
+    // Split content into manageable chunks
+    const contentChunks = splitIntoChunks(trimmedContent, CHUNK_SIZE);
 
-    let summaries = [];
+    // Summarize all chunks in parallel for better performance
+    const summaries = await Promise.all(contentChunks.map(summarizeChunk));
 
-    for (const chunk of contentChunks) {
-      // Request ChatGPT to summarize each chunk separately
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "You are a concise and efficient summarizer.",
-          },
-          {
-            role: "user",
-            content: `Summarize the following content in one short paragraph:\n\n${chunk}`,
-          },
-        ],
-        max_tokens: 80, // Keep responses short
-        temperature: 0.7,
-      });
+    // Combine all summary chunks into a final response
+    const finalSummary = summaries.filter(Boolean).join(" ");
 
-      summaries.push(response.choices[0].message.content.trim());
-    }
-
-    // Combine all summary chunks into a final summary
-    const finalSummary = summaries.join(" ");
-
-    console.log("Final Summary:", finalSummary);
     return new Response(JSON.stringify({ summary: finalSummary }), {
       status: 200,
     });
@@ -95,7 +99,9 @@ export async function POST(req) {
       JSON.stringify({
         error: "An error occurred while summarizing the content.",
       }),
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

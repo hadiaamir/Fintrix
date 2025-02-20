@@ -1,6 +1,7 @@
 import ChatGPTService from "./ChatGPTService"; // Assuming you have this service imported already
 import UtilityService from "./UtilityService";
 import FMP_CATEGORIES from "../../constants/Categories.json";
+import { globalState } from "@/lib/globalState";
 
 const FMPService = {
   /**
@@ -89,6 +90,9 @@ const FMPService = {
           cleanParam,
           prompt
         );
+
+        // save the path data in global state
+        globalState[cleanParam] = queries[cleanParam];
       }
     }
 
@@ -96,10 +100,14 @@ const FMPService = {
     if (category.queries) {
       for (const query of category.queries) {
         const cleanQuery = query.replace("*", ""); // Remove required indicator (*)
+
         queries[cleanQuery] = await UtilityService.guessParamValue(
           cleanQuery,
           prompt
         );
+
+        // save the query data in global state
+        globalState[cleanQuery] = queries[cleanQuery];
       }
     }
 

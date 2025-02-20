@@ -29,6 +29,7 @@ import TechnicalIndicator from "@/components/technical_indicator/TechnicalIndica
 import SlidingPrompts from "@/components/sliding_prompts/SlidingPrompts";
 import Spinner from "@/components/spinner/Spinner";
 import EarningTranscript from "@/components/earnings_transcript/EarningTranscript";
+import Summary from "@/components/summary/Summary";
 
 const prompts1 = [
   "Summarize Spotify's latest conference call.",
@@ -95,9 +96,7 @@ const ChatWindow = () => {
         console.log("response.key", response.key);
 
         if (response.data.length > 0) {
-          console.log("here");
-
-          await summarizeContent(response.data);
+          setSummarizedPrompt(response.summary);
           setReponseData(response.data);
           setDataType(response.key);
         } else {
@@ -112,15 +111,15 @@ const ChatWindow = () => {
     }
   };
 
-  const summarizeContent = async (objectsArray) => {
-    try {
-      const response = await http.post("/summarize", { objectsArray });
+  // const summarizeContent = async (objectsArray) => {
+  //   try {
+  //     const response = await http.post("/summarize", { objectsArray });
 
-      setSummarizedPrompt(response.summary);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+  //     setSummarizedPrompt(response.summary);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
   const resetComponent = () => {
     setReponseData(null);
@@ -202,15 +201,7 @@ const ChatWindow = () => {
         <div className={ChatWindowStyles["response-section"]}>
           {/* <h1>Company Financial Overview</h1> */}
 
-          {summarizedResposne && (
-            <div className={ChatWindowStyles["summary"]}>
-              <div className={ChatWindowStyles["summary__title"]}>Summary</div>
-              <hr></hr>
-              <div className={ChatWindowStyles["summary__content"]}>
-                {summarizedResposne}
-              </div>
-            </div>
-          )}
+          {summarizedResposne && <Summary data={summarizedResposne} />}
 
           <div>
             <div className={ChatWindowStyles["detailed-header"]}>

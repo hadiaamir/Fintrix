@@ -205,6 +205,86 @@ const ChatGPTService = {
     const bestCategory = aiResponse.choices[0].message.content.trim();
     return FMP_CATEGORIES[bestCategory] ? bestCategory : null;
   },
+
+  /**
+   * Extracts the period type (Annual or Quarterly) from the given prompt using OpenAI's chat model.
+   *
+   * @param {string} prompt - The user query that contains the period type.
+   * @returns {string} - The extracted period type (either 'annual' or 'quarterly').
+   */
+  getPeriodFromPrompt: async function (prompt) {
+    const systemMessage = `You are a financial assistant. Extract the period type from the user query. Determine if the question refers to an annual or quarterly period.
+  
+    Example Inputs and Outputs:
+    - "What was Tesla's revenue in Q2 2024?" → "quarterly"
+    - "What was Tesla's revenue in 2024?" → "annual"
+    - "Provide the quarterly performance of Apple in Q1 2023." → "quarterly"
+    - "What was the full year revenue of Amazon in 2023?" → "annual"
+    - "Tell me the profits of Microsoft in Q3 2023" → "quarterly"
+    
+    Only return 'annual' or 'quarterly', nothing else.`;
+
+    const aiResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt },
+      ],
+    });
+
+    const extractedPeriod = aiResponse.choices[0].message.content.trim();
+    return extractedPeriod;
+  },
+  summarizeContent: async function (objectsArray) {
+    if (!Array.isArray(objectsArray) || objectsArray.length === 0) {
+      throw new Error("Invalid input. Expected a non-empty array of objects.");
+    }
+
+    // Helper function to format data for summary
+    const formatObjectForSummary = (obj) =>
+      obj.content
+        ? obj.content
+        : Object.entries(obj)
+            .map(
+              ([key, value]) => `**${key}:** ${value}` // Bold the metric key for better emphasis
+            )
+            .join("\n");
+
+    // Combine formatted content into a single string with double newlines for better separation
+    const combinedContent = objectsArray
+      .map(formatObjectForSummary)
+      .join("\n\n");
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a detailed summarizer with a friendly and conversational tone. Explain the financial metrics in an engaging and easy-to-understand way, as if you’re explaining it to a non-expert, but still maintaining clarity. Use bullet points, clear sections, and make sure the information feels accessible and natural.",
+          },
+          {
+            role: "user",
+            content: `Please summarize the following content in a casual and approachable way, with bullet points and clear section titles. Here’s the info:\n\n${combinedContent}`,
+          },
+        ],
+        temperature: 0.7,
+      });
+
+      // Extract the response and format for better readability
+      let formattedResponse =
+        response.choices[0]?.message?.content?.trim() || "";
+
+      // Replace single newlines with double newlines to ensure proper spacing between sections
+      formattedResponse = formattedResponse.replace(/\n+/g, "\n\n");
+
+      return formattedResponse;
+    } catch (error) {
+      console.error("Error summarizing content:", error);
+      return ""; // Return empty string on failure to avoid breaking response
+    }
+  },
 };
 
 export default ChatGPTService;

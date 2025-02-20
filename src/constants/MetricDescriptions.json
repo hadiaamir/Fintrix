@@ -1,0 +1,12 @@
+{
+  "revenue": "Revenue is the total amount of money earned by the company during this period. It is a key indicator of the company's overall business performance.",
+  "cost of revenue": "The cost of revenue represents the expenses incurred to generate the revenue. It is subtracted from revenue to determine the company's gross profit.",
+  "gross profit": "Gross profit is the difference between revenue and cost of revenue. It reflects the profitability of the company before accounting for other expenses.",
+  "gross profit ratio": "The gross profit ratio measures the percentage of revenue that exceeds the cost of revenue. A higher ratio indicates better efficiency in generating profit from sales.",
+  "research and development expenses": "Research and development (R&D) expenses reflect the company's investment in creating new products or services and improving existing ones. High R&D expenses are often a sign of a company’s commitment to innovation.",
+  "operating income": "Operating income is the profit the company earns from its core business activities, excluding any interest, taxes, or non-operating income. It's a critical measure of operational efficiency.",
+  "net income": "Net income is the company’s total profit after all expenses, including operating costs, interest, taxes, and other expenses. It's a key measure of the company's profitability.",
+  "ebitda": "EBITDA stands for earnings before interest, taxes, depreciation, and amortization. It measures the company’s profitability without the effects of financing and accounting decisions.",
+  "earnings per share": "Earnings per share (EPS) represents the portion of a company's profit allocated to each outstanding share of common stock. It's a commonly used measure of profitability.",
+  "total other income/expenses net": "This metric reflects the net income or loss from non-operating activities, such as investments, interest, or one-time items. A positive value adds to the company's overall income."
+}

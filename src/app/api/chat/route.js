@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import UtilityService from "@/services/api/UtilityService";
 import FMPService from "@/services/api/FMPService";
 import redisClient from "@/lib/redis"; // Make sure to import your Redis client
+import { globalState } from "@/lib/globalState";
+import ChatGPTService from "@/services/api/ChatGPTService";
 
 export async function POST(req) {
   try {
@@ -19,6 +21,7 @@ export async function POST(req) {
       // If data exists in Redis, return it
       return NextResponse.json({
         key: parsedData.key, // Access after parsing
+        summary: parsedData.summary,
         data: parsedData.data,
       });
     }
@@ -27,8 +30,6 @@ export async function POST(req) {
     const urlData = await FMPService.getBestApiUrl(prompt);
     const url = urlData.apiUrl; // The URL to query
     let resultData = null; // Placeholder for API response data
-
-    console.log("url", url);
 
     // Check if it's not a news category and involves multiple tickers
     if (urlData.category !== "News" && UtilityService.hasMultipleTickers(url)) {
@@ -47,16 +48,45 @@ export async function POST(req) {
     // If the category is "Dividends", extract the historical dividend data
     if (urlData.category === "Dividends") {
       flattenedData = resultData.historical;
+    }
+
+    if (urlData.category === "Financial Statements") {
+      let yearFromPrompt = await UtilityService.extractYearFromPrompt(prompt);
+      let quarterFromPrompt = await UtilityService.extractQuarterFromPrompt(
+        prompt
+      );
+
+      console.log("YEAR -----", yearFromPrompt);
+      console.log("QUARTER -----", quarterFromPrompt);
+
+      if (globalState.period === "quarterly") {
+        flattenedData = await UtilityService.getQuarterData({
+          data: resultData.flat(Infinity),
+          year: yearFromPrompt,
+          quarter: quarterFromPrompt,
+        });
+      }
+
+      // TODO: if annual then get the annual report
     } else {
       // Otherwise, flatten the response data (in case of nested arrays)
       flattenedData = resultData.flat(Infinity);
     }
+
+    console.log("GLOBAL ------ ", globalState);
+    console.log("URL ------- ", url);
+    console.log("CATEGORY ------- ", urlData.category);
+    console.log("DATA -------- ", flattenedData);
+
+    let summarizedData = await ChatGPTService.summarizeContent(flattenedData);
+    console.log("summarizedData", summarizedData);
 
     // Save the processed data to Redis using the prompt as the key
     await redisClient.set(
       prompt,
       JSON.stringify({
         key: urlData.category,
+        summary: summarizedData,
         data: flattenedData,
       }),
       {
@@ -65,7 +95,11 @@ export async function POST(req) {
     );
 
     // Return the processed data as a JSON response
-    return NextResponse.json({ key: urlData.category, data: flattenedData });
+    return NextResponse.json({
+      key: urlData.category,
+      summary: summarizedData,
+      data: flattenedData,
+    });
   } catch (error) {
     // In case of an error, log it and return a 500 error response with the error message
     console.error("❌ API Error:", error);

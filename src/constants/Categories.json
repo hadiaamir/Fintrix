@@ -27,7 +27,7 @@
   "Financial Statements": {
     "desc": "Retrieve annual and quarterly income statements for a specified company.",
     "api": "https://financialmodelingprep.com/api/v3/income-statement/",
-    "path": ["symbol*"],
+    "path": ["symbol*", "cik*"],
     "queries": ["period"]
   },
 

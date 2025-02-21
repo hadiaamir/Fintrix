@@ -55,7 +55,7 @@ export async function POST(req) {
       flattenedData = resultData.historical;
     }
 
-    if (urlData.category === "Financial Statements") {
+    if (urlData.category == "Financial Statements") {
       flattenedData = await UtilityService.extractYearAndPeriodData({
         prompt,
         resultData,

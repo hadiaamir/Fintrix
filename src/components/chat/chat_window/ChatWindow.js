@@ -33,32 +33,36 @@ import Summary from "@/components/summary/Summary";
 
 const prompts1 = [
   "Summarize Spotify's latest conference call.",
+  "What has Airbnb management said about profitability over the last few earnings calls?",
   "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?",
-  "Compare the revenue growth between Amazon and Microsoft over the past year.",
-  "What is the P/E ratio for Tesla as of the latest earnings report?",
-  "Summarize the executive statements made by Microsoft during their earnings call.",
-  "What guidance did Amazon provide for the next quarter?",
-  "What has been the trend in Apple's gross profit margin over the last 3 years?",
-  "Can you show Tesla’s quarterly earnings growth over the past year?",
-  "What were the key highlights from Apple's Q4 2024 management commentary?",
-  "Can you summarize the CEO's outlook on growth for Tesla?",
-  "How does Tesla’s current market cap compare to that of Apple?",
-  "What’s the operating income for Google in the most recent fiscal year?",
+  "How many new large deals did ServiceNow sign in the last quarter?",
+  "Summarize Tesla's latest conference call.",
+  "What has Amazon's management said about profitability over the last few earnings calls?",
+  "What are Tim Cook's and Sundar Pichai's recent comments about AI?",
+  "How many new large deals did Salesforce sign in the last quarter?",
+  "Summarize Microsoft’s most recent earnings call.",
+  "What has Netflix management said about subscriber growth in the last few earnings calls?",
+  "What are Elon Musk's and Jeff Bezos' views on space exploration?",
+  "How did Adobe perform in terms of new customer acquisition last quarter?",
+  "What has Meta's management said about their investments in virtual reality?",
+  "How many new partnerships did Shopify sign in the last quarter?",
 ];
 
 const prompts2 = [
-  "How many new large deals did ServiceNow sign in the last quarter?",
-  "What has Airbnb management said about profitability over the last few earnings calls?",
-  "Can you provide a summary of the latest earnings call for Tesla?",
-  "What are the major takeaways from Amazon’s most recent transcript?",
-  "How much revenue did Apple generate in Q4 2024?",
-  "What are Google's expectations for capital expenditures in the coming year?",
-  "What are the recent trends in revenue for Microsoft over the last 5 quarters?",
-  "Can you show me the free cash flow for Amazon from their last earnings report?",
-  "What are the differences in operating margins between Google and Microsoft?",
-  "What is the current debt-to-equity ratio of Microsoft?",
-  "Give me the transcript summary of Google’s latest quarterly results.",
-  "What’s the operating income for Google in the most recent fiscal year?",
+  "Summarize Apple's latest conference call.",
+  "What has Google management said about profitability over the last few earnings calls?",
+  "What are Satya Nadella's and Sundar Pichai's recent comments about AI?",
+  "How many new large deals did Oracle sign in the last quarter?",
+  "Summarize Adobe's most recent earnings call.",
+  "What has Zoom management said about profitability in the last few earnings calls?",
+  "What are Jack Dorsey's and Parag Agrawal's recent comments about AI?",
+  "How many new large deals did Slack sign in the last quarter?",
+  "Summarize Intel’s latest earnings call.",
+  "What has Nvidia management said about profitability over the last few earnings calls?",
+  "What are Bill Gates' and Satya Nadella's thoughts on AI advancements?",
+  "How did Spotify perform in terms of new subscriber growth last quarter?",
+  "What has Uber's management said about future profitability?",
+  "How many new partnerships did Pinterest sign in the last quarter?",
 ];
 
 const ChatWindow = () => {
@@ -110,16 +114,6 @@ const ChatWindow = () => {
       alert("Failed to fetch response. Please try again.");
     }
   };
-
-  // const summarizeContent = async (objectsArray) => {
-  //   try {
-  //     const response = await http.post("/summarize", { objectsArray });
-
-  //     setSummarizedPrompt(response.summary);
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
 
   const resetComponent = () => {
     setReponseData(null);

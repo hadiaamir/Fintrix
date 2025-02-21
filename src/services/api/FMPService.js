@@ -52,8 +52,6 @@ const FMPService = {
         apiUrl.includes("?") ? "&" : "?"
       }apikey=${apiKey}`;
 
-      console.log("finalUrl", finalUrl);
-
       const response = await fetch(finalUrl);
       if (!response.ok) {
         throw new Error(`API request failed: ${response.statusText}`);

@@ -29,7 +29,6 @@ const UtilityService = {
         }`
     );
   },
-
   /**
    * Determines whether an API URL contains multiple tickers.
    *
@@ -46,7 +45,6 @@ const UtilityService = {
     // Return true if multiple tickers are present, false otherwise
     return match && match[1].includes(",");
   },
-
   /**
    * Extracts a CIK number (10-digit number) from the prompt.
    *
@@ -201,10 +199,6 @@ const UtilityService = {
     const annualData = data.find((item) => {
       const itemYear = item.calendarYear; // i.e. 2024
 
-      console.log("itemYear", itemYear);
-
-      console.log("year", year);
-
       return itemYear == year;
     });
 
@@ -258,6 +252,11 @@ const UtilityService = {
 
   extractYearAndPeriodData: async function ({ prompt, resultData }) {
     let result = [];
+
+    if (!globalState.hasOwnProperty("period")) {
+      // If `period` is not present, fetch it from ChatGPTService
+      globalState.period = await ChatGPTService.getPeriodFromPrompt(prompt);
+    }
 
     // Extract year from prompt using regex
     let yearFromPrompt = await this.extractYearFromPrompt(prompt);

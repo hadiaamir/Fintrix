@@ -2,8 +2,6 @@ import React from "react";
 import styles from "./TechnicalIndicator.module.scss";
 
 const TechnicalIndicator = ({ data }) => {
-  console.log("data", data);
-
   return (
     <div className={styles["technical-indicator"]}>
       <h2 className={styles["technical-indicator__title"]}>

@@ -1,4 +1,5 @@
 import ChatGPTService from "./ChatGPTService";
+import { globalState } from "@/lib/globalState";
 
 const UtilityService = {
   /**
@@ -28,7 +29,6 @@ const UtilityService = {
         }`
     );
   },
-
   /**
    * Determines whether an API URL contains multiple tickers.
    *
@@ -45,7 +45,6 @@ const UtilityService = {
     // Return true if multiple tickers are present, false otherwise
     return match && match[1].includes(",");
   },
-
   /**
    * Extracts a CIK number (10-digit number) from the prompt.
    *
@@ -163,6 +162,134 @@ const UtilityService = {
 
     return { year: currentYear, quarter: currentQuarter - 1 };
   },
+
+  /**
+   * Gets the income statement for a specific quarter of a given year based on the `period` and `date` fields.
+   *
+   * @param {Array} data - The income statement data from the API response.
+   * @param {number} year - The year for the desired quarter (e.g., 2024).
+   * @param {number} quarter - The quarter number (1 for Q1, 2 for Q2, etc.).
+   * @returns {Object|null} - The income statement for the specified quarter, or null if not found.
+   */
+  getQuarterData: function ({ data, year, quarter }) {
+    // Determine the quarter period (e.g., 'Q1', 'Q2', etc.)
+    const period = quarter;
+
+    // Find the entry that matches the period and year
+    const quarterData = data.find((item) => {
+      const itemPeriod = item.period; // 'Q1', 'Q2', etc.
+      const itemYear = item.calendarYear; // i.e. 2024
+
+      return itemPeriod == period && itemYear == year;
+    });
+
+    // Ensure the result is an array, even if it's a single object
+    return Array.isArray(quarterData) ? quarterData : [quarterData];
+  },
+
+  /**
+   * Gets the income statement for a specific year.
+   *
+   * @param {Array} data - The income statement data from the API response.
+   * @param {number} year - The year for the desired annual data (e.g., 2024).
+   * @returns {Object|null} - The income statement for the specified year, or null if not found.
+   */
+  getAnnualData: function ({ data, year }) {
+    // Find the entry that matches the year
+    const annualData = data.find((item) => {
+      const itemYear = item.calendarYear; // i.e. 2024
+
+      return itemYear == year;
+    });
+
+    // Ensure the result is an array, even if it's a single object
+    const result = Array.isArray(annualData) ? annualData : [annualData];
+
+    return result;
+  },
+
+  /**
+   * Extracts the year from the given prompt.
+   *
+   * @param {string} prompt - The user query that contains the year.
+   * @returns {string|null} - The extracted year or null if no year is found.
+   */
+  extractYearFromPrompt: function (prompt) {
+    // Regular expression to match a 4-digit year (e.g., 2024, 1999)
+    const yearPattern = /\b\d{4}\b/;
+
+    // Search for the year in the prompt
+    const match = prompt.match(yearPattern);
+
+    // If a match is found, return the year, otherwise return null
+    if (match) {
+      return match[0]; // Returns the first matched year
+    } else {
+      return null; // No year found
+    }
+  },
+
+  /**
+   * Extracts the quarter (Q1, Q2, Q3, Q4) from the given prompt.
+   *
+   * @param {string} prompt - The user query that contains the quarter information.
+   * @returns {Promise<string|null>} - The extracted quarter (e.g., 'Q1', 'Q2'), or null if no quarter is found.
+   */
+  extractQuarterFromPrompt: async function (prompt) {
+    // Define a regular expression to match the quarter format (e.g., Q1, Q2, Q3, Q4)
+    const quarterPattern = /\b(Q[1-4])\b/;
+
+    // Use the regex to search for a quarter in the prompt
+    const match = prompt.match(quarterPattern);
+
+    // If a match is found, return the quarter (e.g., 'Q1', 'Q2', etc.), otherwise return null
+    if (match) {
+      return match[0]; // Returns the quarter like 'Q1', 'Q2', etc.
+    } else {
+      return null; // No quarter found
+    }
+  },
+
+  extractYearAndPeriodData: async function ({ prompt, resultData }) {
+    let result = [];
+
+    if (!globalState.hasOwnProperty("period")) {
+      // If `period` is not present, fetch it from ChatGPTService
+      globalState.period = await ChatGPTService.getPeriodFromPrompt(prompt);
+    }
+
+    // Extract year from prompt using regex
+    let yearFromPrompt = await this.extractYearFromPrompt(prompt);
+
+    // Fallback: Use ChatGPT if regex fails
+    if (!yearFromPrompt) {
+      yearFromPrompt = await ChatGPTService.getYearFromPrompt(prompt);
+    }
+
+    if (globalState.period === "quarterly") {
+      // Extract quarter from prompt using regex
+      let quarterFromPrompt = await this.extractQuarterFromPrompt(prompt);
+
+      // Fallback: Use ChatGPT if regex fails
+      if (!quarterFromPrompt) {
+        quarterFromPrompt = await ChatGPTService.getQuarterFromPrompt(prompt);
+      }
+
+      result = await this.getQuarterData({
+        data: resultData.flat(Infinity),
+        year: yearFromPrompt,
+        quarter: quarterFromPrompt,
+      });
+    } else if (globalState.period === "annual") {
+      result = await this.getAnnualData({
+        data: resultData.flat(Infinity),
+        year: yearFromPrompt,
+      });
+    }
+
+    return result;
+  },
+
   /**
    * Function to intelligently guess parameter values based on the provided prompt
    *
@@ -172,7 +299,7 @@ const UtilityService = {
    */
   guessParamValue: async function (param, prompt) {
     if (param === "symbol" || param === "tickers") {
-      return (await ChatGPTService.extractStockSymbols(prompt)) || "AAPL"; // Extract stock symbol if possible
+      return await ChatGPTService.extractStockSymbols(prompt); // Extract stock symbol if possible
     }
     if (param === "year") {
       return await ChatGPTService.getYearFromPrompt(prompt);
@@ -205,7 +332,7 @@ const UtilityService = {
     }
 
     if (param === "period") {
-      return 10;
+      return await ChatGPTService.getPeriodFromPrompt(prompt);
     }
 
     if (param === "cik") {

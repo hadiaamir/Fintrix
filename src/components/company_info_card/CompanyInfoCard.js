@@ -1,8 +1,6 @@
 import styles from "./CompanyInfoCard.module.scss";
 
 const CompanyInfoCard = ({ data }) => {
-  console.log("data", data);
-
   if (!data || data.length === 0) {
     return (
       <p className={styles["company-info-card__empty"]}>No data available.</p>

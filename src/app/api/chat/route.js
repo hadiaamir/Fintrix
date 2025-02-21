@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import UtilityService from "@/services/api/UtilityService";
 import FMPService from "@/services/api/FMPService";
 import redisClient from "@/lib/redis"; // Make sure to import your Redis client
+import { globalState } from "@/lib/globalState";
+import ChatGPTService from "@/services/api/ChatGPTService";
 
 export async function POST(req) {
   try {
@@ -11,14 +13,13 @@ export async function POST(req) {
     // Check if the data is already cached in Redis
     const cachedData = await redisClient.get(prompt);
     if (cachedData) {
-      console.log("cachedData", cachedData);
-
       // Parse Redis response (since it's stored as a string)
       const parsedData = JSON.parse(cachedData);
 
       // If data exists in Redis, return it
       return NextResponse.json({
         key: parsedData.key, // Access after parsing
+        summary: parsedData.summary,
         data: parsedData.data,
       });
     }
@@ -26,9 +27,8 @@ export async function POST(req) {
     // Get the best API URL and category based on the provided prompt
     const urlData = await FMPService.getBestApiUrl(prompt);
     const url = urlData.apiUrl; // The URL to query
-    let resultData = null; // Placeholder for API response data
 
-    console.log("url", url);
+    let resultData = null; // Placeholder for API response data
 
     // Check if it's not a news category and involves multiple tickers
     if (urlData.category !== "News" && UtilityService.hasMultipleTickers(url)) {
@@ -47,9 +47,22 @@ export async function POST(req) {
     // If the category is "Dividends", extract the historical dividend data
     if (urlData.category === "Dividends") {
       flattenedData = resultData.historical;
+    }
+
+    if (urlData.category == "Financial Statements") {
+      flattenedData = await UtilityService.extractYearAndPeriodData({
+        prompt,
+        resultData,
+      });
     } else {
       // Otherwise, flatten the response data (in case of nested arrays)
       flattenedData = resultData.flat(Infinity);
+    }
+
+    let summarizedData = "";
+
+    if (flattenedData) {
+      summarizedData = await ChatGPTService.summarizeContent(flattenedData);
     }
 
     // Save the processed data to Redis using the prompt as the key
@@ -57,6 +70,7 @@ export async function POST(req) {
       prompt,
       JSON.stringify({
         key: urlData.category,
+        summary: summarizedData,
         data: flattenedData,
       }),
       {
@@ -64,8 +78,15 @@ export async function POST(req) {
       }
     );
 
+    // clear global state
+    Object.keys(globalState).forEach((key) => delete globalState[key]);
+
     // Return the processed data as a JSON response
-    return NextResponse.json({ key: urlData.category, data: flattenedData });
+    return NextResponse.json({
+      key: urlData.category,
+      summary: summarizedData,
+      data: flattenedData,
+    });
   } catch (error) {
     // In case of an error, log it and return a 500 error response with the error message
     console.error("❌ API Error:", error);

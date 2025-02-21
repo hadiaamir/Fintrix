@@ -29,37 +29,50 @@ import TechnicalIndicator from "@/components/technical_indicator/TechnicalIndica
 import SlidingPrompts from "@/components/sliding_prompts/SlidingPrompts";
 import Spinner from "@/components/spinner/Spinner";
 import EarningTranscript from "@/components/earnings_transcript/EarningTranscript";
+import Summary from "@/components/summary/Summary";
 
 const prompts1 = [
   "Summarize Spotify's latest conference call.",
+  "What has Airbnb management said about profitability over the last few earnings calls?",
   "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?",
-  "Compare the revenue growth between Amazon and Microsoft over the past year.",
-  "What is the P/E ratio for Tesla as of the latest earnings report?",
-  "Summarize the executive statements made by Microsoft during their earnings call.",
-  "What guidance did Amazon provide for the next quarter?",
-  "What has been the trend in Apple's gross profit margin over the last 3 years?",
-  "Can you show Tesla’s quarterly earnings growth over the past year?",
-  "What were the key highlights from Apple's Q4 2024 management commentary?",
-  "Can you summarize the CEO's outlook on growth for Tesla?",
-  "How does Tesla’s current market cap compare to that of Apple?",
-  "What’s the operating income for Google in the most recent fiscal year?",
+  "How many new large deals did ServiceNow sign in the last quarter?",
+  "Summarize Tesla's latest conference call.",
+  "What was Tesla revenue in Q2 2024?",
+  "What was Amazon's revenue in Q4 2023?",
+  "How did Microsoft perform in Q1 2024?",
+  "What was Apple’s revenue in FY 2023?",
+  "What was the full-year revenue of Netflix in 2023?",
+  "How did Google perform in Q3 2023?",
+  "What was Nvidia's revenue in Q2 2023?",
+  "How did Salesforce perform in Q4 2023?",
+  "What was the revenue of Adobe in Q2 2023?",
+  "How did Meta perform in Q1 2024?",
 ];
 
 const prompts2 = [
-  "How many new large deals did ServiceNow sign in the last quarter?",
-  "What has Airbnb management said about profitability over the last few earnings calls?",
-  "Can you provide a summary of the latest earnings call for Tesla?",
-  "What are the major takeaways from Amazon’s most recent transcript?",
-  "How much revenue did Apple generate in Q4 2024?",
-  "What are Google's expectations for capital expenditures in the coming year?",
-  "What are the recent trends in revenue for Microsoft over the last 5 quarters?",
-  "Can you show me the free cash flow for Amazon from their last earnings report?",
-  "What are the differences in operating margins between Google and Microsoft?",
-  "What is the current debt-to-equity ratio of Microsoft?",
-  "Give me the transcript summary of Google’s latest quarterly results.",
-  "What’s the operating income for Google in the most recent fiscal year?",
+  "What was Meta revenue in Q2 2024?",
+  "What has Zoom management said about profitability in the last few earnings calls?",
+  "How many new large deals did Slack sign in the last quarter?",
+  "What was Amazon's revenue in Q4 2023?",
+  "Summarize Intel’s latest earnings call.",
+  "How did Microsoft perform in Q1 2024?",
+  "What was Apple's revenue in FY 2023?",
+  "How did Google perform in Q3 2023?",
+  "What was the full-year revenue of Netflix in 2023?",
+  "How did Spotify perform in terms of new subscriber growth last quarter?",
+  "How did Meta perform in Q1 2024?",
+  "What was Nvidia's revenue in Q2 2023?",
+  "What was the revenue of Adobe in Q2 2023?",
+  "How did Tesla's financial performance compare to last year?",
+  "What has Uber's management said about future profitability?",
+  "How many new partnerships did Pinterest sign in the last quarter?",
+  "How did Salesforce perform in Q4 2023?",
+  "What are Bill Gates' and Satya Nadella's thoughts on AI advancements?",
+  "What was Microsoft's revenue in Q4 2023?",
+  "What was the total revenue of Amazon in Q2 2024?",
+  "How many new deals did ServiceNow secure in the last quarter?",
+  "How did Microsoft perform in Q2 2023?",
 ];
-
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
 
@@ -86,18 +99,12 @@ const ChatWindow = () => {
       // call chat api
       const response = await http.post("/chat", { prompt: message });
 
-      console.log("response", response);
-
       if (!response) throw new Error(data.error || "Something went wrong");
 
       // if the response is succesful
       if (response) {
-        console.log("response.key", response.key);
-
         if (response.data.length > 0) {
-          console.log("here");
-
-          await summarizeContent(response.data);
+          setSummarizedPrompt(response.summary);
           setReponseData(response.data);
           setDataType(response.key);
         } else {
@@ -109,16 +116,6 @@ const ChatWindow = () => {
     } catch (error) {
       console.error("API Error:", error);
       alert("Failed to fetch response. Please try again.");
-    }
-  };
-
-  const summarizeContent = async (objectsArray) => {
-    try {
-      const response = await http.post("/summarize", { objectsArray });
-
-      setSummarizedPrompt(response.summary);
-    } catch (error) {
-      console.error("Error:", error);
     }
   };
 
@@ -202,15 +199,7 @@ const ChatWindow = () => {
         <div className={ChatWindowStyles["response-section"]}>
           {/* <h1>Company Financial Overview</h1> */}
 
-          {summarizedResposne && (
-            <div className={ChatWindowStyles["summary"]}>
-              <div className={ChatWindowStyles["summary__title"]}>Summary</div>
-              <hr></hr>
-              <div className={ChatWindowStyles["summary__content"]}>
-                {summarizedResposne}
-              </div>
-            </div>
-          )}
+          {summarizedResposne && <Summary data={summarizedResposne} />}
 
           <div>
             <div className={ChatWindowStyles["detailed-header"]}>

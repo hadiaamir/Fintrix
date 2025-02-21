@@ -65,7 +65,6 @@ const ChatGPTService = {
     });
 
     const extractedQuarter = aiResponse.choices[0].message.content.trim();
-    console.log("Extracted Quarter:", extractedQuarter);
 
     if (/^[1-4]$/.test(extractedQuarter)) {
       return extractedQuarter;
@@ -131,18 +130,26 @@ const ChatGPTService = {
    * @returns {Array} - An array of stock ticker symbols.
    */
   extractStockSymbols: async function (prompt) {
+    // Clean up the prompt by removing unnecessary characters (apostrophes, quotation marks, etc.)
     const companyName = prompt.toLowerCase().trim();
+    const cleanedCompanyName = companyName.replace(/['"]/g, "");
+
+    // Check if the cleaned company name matches any tickers in the COMMON_TICKERS map
     const tickerFromMap = Object.keys(COMMON_TICKERS).find((name) =>
-      name.toLowerCase().includes(companyName)
+      name.toLowerCase().includes(cleanedCompanyName)
     );
 
+    // If a match is found in the map, return the corresponding ticker
     if (tickerFromMap) {
-      return [COMMON_TICKERS[tickerFromMap]];
+      return [COMMON_TICKERS[tickerFromMap]]; // Return the ticker if found
     }
 
+    // If no match found in the map, use the OpenAI API to get the ticker(s)
     const systemMessage = `You are a financial assistant. Given a user query, determine the most relevant stock ticker(s). 
-      Think beyond direct mentions—consider CEO names, company names, and industries. Return only the most relevant tickers, separated by commas.
+    Think beyond direct mentions—consider CEO names, company names, and industries. Return only the most relevant tickers, separated by commas.
   
+    IMPORTANT: Ensure "ServiceNow" maps to "NOW".
+
       Examples:
       - "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?" → "META,MSFT"
       - "Show me Tesla's stock price" → "TSLA"
@@ -150,10 +157,14 @@ const ChatGPTService = {
       - "Latest news on Microsoft and Nvidia" → "MSFT,NVDA"
       - "What is Amazon's valuation?" → "AMZN"
       - "How is Google's cloud business doing?" → "GOOGL"
-  
-      Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return "UNKNOWN".`;
+      - "Tell me about ServiceNow" → "NOW"
+
+    **Fallback Rule**: If no relevant ticker is found, return nothing (empty array).
+    
+    Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return an empty array.`;
 
     try {
+      // Call the OpenAI API for ticker extraction
       const aiResponse = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [
@@ -164,19 +175,22 @@ const ChatGPTService = {
 
       let tickers = aiResponse.choices[0].message.content.trim();
 
+      // If the AI response is "UNKNOWN" or empty, return nothing (empty array)
       if (tickers === "UNKNOWN" || !tickers) {
-        return [];
+        return []; // Return nothing (empty array)
       }
 
+      // Clean up the AI response by removing unwanted characters (quotes, etc.)
       tickers = tickers.replace(/['"]/g, "");
 
+      // Split the tickers by commas, trim spaces, and filter out any empty results
       return tickers
         .split(",")
         .map((ticker) => ticker.trim())
         .filter(Boolean);
     } catch (error) {
       console.error("Error extracting stock symbols:", error);
-      return [];
+      return []; // Return nothing (empty array) in case of error
     }
   },
 
@@ -204,6 +218,118 @@ const ChatGPTService = {
 
     const bestCategory = aiResponse.choices[0].message.content.trim();
     return FMP_CATEGORIES[bestCategory] ? bestCategory : null;
+  },
+
+  /**
+   * Extracts the period type (Annual or Quarterly) from the given prompt using OpenAI's chat model.
+   *
+   * @param {string} prompt - The user query that contains the period type.
+   * @returns {string} - The extracted period type (either 'annual' or 'quarterly').
+   */
+  getPeriodFromPrompt: async function (prompt) {
+    const systemMessage = `You are a financial assistant. Extract the period type from the user query. Determine if the question refers to an annual or quarterly period.
+
+    Example Inputs and Outputs:
+    - "What was Tesla's revenue in Q2 2024?" → "quarterly"
+    - "What was Tesla's revenue in 2024?" → "annual"
+    - "Provide the quarterly performance of Apple in Q1 2023." → "quarterly"
+    - "What was the full year revenue of Amazon in 2023?" → "annual"
+    - "Tell me the profits of Microsoft in Q3 2023" → "quarterly"
+    
+    If the period is not explicitly mentioned, return 'annual' by default. Return only 'annual' or 'quarterly', nothing else.`;
+
+    const aiResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt },
+      ],
+    });
+
+    const extractedPeriod = aiResponse.choices[0].message.content.trim();
+    return extractedPeriod;
+  },
+  summarizeContent: async function (objectsArray) {
+    if (!Array.isArray(objectsArray) || objectsArray.length === 0) {
+      throw new Error("Invalid input. Expected a non-empty array of objects.");
+    }
+
+    // Helper function to format data for summary
+    const formatObjectForSummary = (obj) =>
+      obj.content
+        ? obj.content
+        : Object.entries(obj)
+            .map(
+              ([key, value]) => `**${key}:** ${value}` // Bold the metric key for better emphasis
+            )
+            .join("\n");
+
+    // Combine formatted content into a single string with double newlines for better separation
+    const combinedContent = objectsArray
+      .map(formatObjectForSummary)
+      .join("\n\n");
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a detailed summarizer with a friendly and conversational tone. Explain the financial metrics in an engaging and easy-to-understand way, as if you’re explaining it to a non-expert, but still maintaining clarity. Use bullet points, clear sections, and make sure the information feels accessible and natural.",
+          },
+          {
+            role: "user",
+            content: `Please summarize the following content in a casual and approachable way, with bullet points and clear section titles. Here’s the info:\n\n${combinedContent}`,
+          },
+        ],
+        temperature: 0.7,
+      });
+
+      // Extract the response and format for better readability
+      let formattedResponse =
+        response.choices[0]?.message?.content?.trim() || "";
+
+      // Replace single newlines with double newlines to ensure proper spacing between sections
+      formattedResponse = formattedResponse.replace(/\n+/g, "\n\n");
+
+      return formattedResponse;
+    } catch (error) {
+      console.error("Error summarizing content:", error);
+      return ""; // Return empty string on failure to avoid breaking response
+    }
+  },
+
+  // Function to extract tickers from a text prompt using ChatGPT
+  extractStockSymbolsFromPrompt: async function (prompt) {
+    const systemMessage = `You are a financial assistant. Given a user query, determine the most relevant stock ticker(s).
+    Always return only tickers in uppercase, separated by commas. If no ticker is relevant, return "AAPL" as a fallback.`;
+
+    try {
+      const aiResponse = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: systemMessage },
+          { role: "user", content: prompt },
+        ],
+      });
+
+      let tickers = aiResponse.choices[0].message.content.trim();
+
+      // If no tickers, return an empty array
+      if (!tickers || tickers === "UNKNOWN") {
+        return [];
+      }
+
+      // Return the tickers as an array
+      return tickers
+        .split(",")
+        .map((ticker) => ticker.trim())
+        .filter(Boolean);
+    } catch (error) {
+      console.error("Error extracting stock symbols from ChatGPT:", error);
+      return ["AAPL"]; // Fallback to AAPL in case of error
+    }
   },
 };
 

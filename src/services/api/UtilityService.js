@@ -266,10 +266,6 @@ const UtilityService = {
       yearFromPrompt = await ChatGPTService.getYearFromPrompt(prompt);
     }
 
-    console.log("YEAR -----", yearFromPrompt);
-
-    console.log("inner globalState", globalState);
-
     if (globalState.period === "quarterly") {
       // Extract quarter from prompt using regex
       let quarterFromPrompt = await this.extractQuarterFromPrompt(prompt);
@@ -279,25 +275,17 @@ const UtilityService = {
         quarterFromPrompt = await ChatGPTService.getQuarterFromPrompt(prompt);
       }
 
-      console.log("QUARTER -----", quarterFromPrompt);
-
       result = await this.getQuarterData({
         data: resultData.flat(Infinity),
         year: yearFromPrompt,
         quarter: quarterFromPrompt,
       });
     } else if (globalState.period === "annual") {
-      console.log("ANNUAL -----");
-
-      console.log("yearFromPrompt", yearFromPrompt);
-
       result = await this.getAnnualData({
         data: resultData.flat(Infinity),
         year: yearFromPrompt,
       });
     }
-
-    console.log("result -->>>>> ", result);
 
     return result;
   },

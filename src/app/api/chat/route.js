@@ -13,8 +13,6 @@ export async function POST(req) {
     // Check if the data is already cached in Redis
     const cachedData = await redisClient.get(prompt);
     if (cachedData) {
-      console.log("cachedData", cachedData);
-
       // Parse Redis response (since it's stored as a string)
       const parsedData = JSON.parse(cachedData);
 
@@ -30,8 +28,6 @@ export async function POST(req) {
     const urlData = await FMPService.getBestApiUrl(prompt);
     const url = urlData.apiUrl; // The URL to query
 
-    console.log("url", url);
-
     let resultData = null; // Placeholder for API response data
 
     // Check if it's not a news category and involves multiple tickers
@@ -46,8 +42,6 @@ export async function POST(req) {
       resultData = await FMPService.fetchFromAPI(url);
     }
 
-    console.log("resultData", resultData);
-
     let flattenedData = null; // Placeholder for processed data
 
     // If the category is "Dividends", extract the historical dividend data
@@ -60,25 +54,15 @@ export async function POST(req) {
         prompt,
         resultData,
       });
-
-      console.log("RESPOINSE ", flattenedData);
     } else {
       // Otherwise, flatten the response data (in case of nested arrays)
       flattenedData = resultData.flat(Infinity);
     }
 
-    // TODO: if annual then get the annual report
-
-    console.log("GLOBAL ------ ", globalState);
-    console.log("URL ------- ", url);
-    console.log("CATEGORY ------- ", urlData.category);
-    console.log("DATA -------- ", flattenedData);
-
     let summarizedData = "";
 
     if (flattenedData) {
       summarizedData = await ChatGPTService.summarizeContent(flattenedData);
-      console.log("summarizedData", summarizedData);
     }
 
     // Save the processed data to Redis using the prompt as the key

@@ -37,34 +37,42 @@ const prompts1 = [
   "What are Mark Zuckerberg's and Satya Nadella's recent comments about AI?",
   "How many new large deals did ServiceNow sign in the last quarter?",
   "Summarize Tesla's latest conference call.",
-  "What has Amazon's management said about profitability over the last few earnings calls?",
-  "What are Tim Cook's and Sundar Pichai's recent comments about AI?",
-  "How many new large deals did Salesforce sign in the last quarter?",
-  "Summarize Microsoft’s most recent earnings call.",
-  "What has Netflix management said about subscriber growth in the last few earnings calls?",
-  "What are Elon Musk's and Jeff Bezos' views on space exploration?",
-  "How did Adobe perform in terms of new customer acquisition last quarter?",
-  "What has Meta's management said about their investments in virtual reality?",
-  "How many new partnerships did Shopify sign in the last quarter?",
+  "What was Tesla revenue in Q2 2024?",
+  "What was Amazon's revenue in Q4 2023?",
+  "How did Microsoft perform in Q1 2024?",
+  "What was Apple’s revenue in FY 2023?",
+  "What was the full-year revenue of Netflix in 2023?",
+  "How did Google perform in Q3 2023?",
+  "What was Nvidia's revenue in Q2 2023?",
+  "How did Salesforce perform in Q4 2023?",
+  "What was the revenue of Adobe in Q2 2023?",
+  "How did Meta perform in Q1 2024?",
 ];
 
 const prompts2 = [
-  "Summarize Apple's latest conference call.",
-  "What has Google management said about profitability over the last few earnings calls?",
-  "What are Satya Nadella's and Sundar Pichai's recent comments about AI?",
-  "How many new large deals did Oracle sign in the last quarter?",
-  "Summarize Adobe's most recent earnings call.",
+  "What was Meta revenue in Q2 2024?",
   "What has Zoom management said about profitability in the last few earnings calls?",
-  "What are Jack Dorsey's and Parag Agrawal's recent comments about AI?",
   "How many new large deals did Slack sign in the last quarter?",
+  "What was Amazon's revenue in Q4 2023?",
   "Summarize Intel’s latest earnings call.",
-  "What has Nvidia management said about profitability over the last few earnings calls?",
-  "What are Bill Gates' and Satya Nadella's thoughts on AI advancements?",
+  "How did Microsoft perform in Q1 2024?",
+  "What was Apple's revenue in FY 2023?",
+  "How did Google perform in Q3 2023?",
+  "What was the full-year revenue of Netflix in 2023?",
   "How did Spotify perform in terms of new subscriber growth last quarter?",
+  "How did Meta perform in Q1 2024?",
+  "What was Nvidia's revenue in Q2 2023?",
+  "What was the revenue of Adobe in Q2 2023?",
+  "How did Tesla's financial performance compare to last year?",
   "What has Uber's management said about future profitability?",
   "How many new partnerships did Pinterest sign in the last quarter?",
+  "How did Salesforce perform in Q4 2023?",
+  "What are Bill Gates' and Satya Nadella's thoughts on AI advancements?",
+  "What was Microsoft's revenue in Q4 2023?",
+  "What was the total revenue of Amazon in Q2 2024?",
+  "How many new deals did ServiceNow secure in the last quarter?",
+  "How did Microsoft perform in Q2 2023?",
 ];
-
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
 
@@ -91,14 +99,10 @@ const ChatWindow = () => {
       // call chat api
       const response = await http.post("/chat", { prompt: message });
 
-      console.log("response", response);
-
       if (!response) throw new Error(data.error || "Something went wrong");
 
       // if the response is succesful
       if (response) {
-        console.log("response.key", response.key);
-
         if (response.data.length > 0) {
           setSummarizedPrompt(response.summary);
           setReponseData(response.data);

@@ -65,7 +65,6 @@ const ChatGPTService = {
     });
 
     const extractedQuarter = aiResponse.choices[0].message.content.trim();
-    console.log("Extracted Quarter:", extractedQuarter);
 
     if (/^[1-4]$/.test(extractedQuarter)) {
       return extractedQuarter;
@@ -140,8 +139,6 @@ const ChatGPTService = {
       name.toLowerCase().includes(cleanedCompanyName)
     );
 
-    console.log("tickerFromMap", tickerFromMap);
-
     // If a match is found in the map, return the corresponding ticker
     if (tickerFromMap) {
       return [COMMON_TICKERS[tickerFromMap]]; // Return the ticker if found
@@ -180,7 +177,6 @@ const ChatGPTService = {
 
       // If the AI response is "UNKNOWN" or empty, return nothing (empty array)
       if (tickers === "UNKNOWN" || !tickers) {
-        console.log("No relevant tickers found.");
         return []; // Return nothing (empty array)
       }
 

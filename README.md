@@ -36,7 +36,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## UI/UX Design & Walkthrough (UPDATED)
 
-https://www.loom.com/share/4a35226d55c142368e94cbfc31d21a61?sid=5bf71cbc-8edb-4785-8f3a-e3991bff127b
+
 
 [![image](https://github.com/user-attachments/assets/3dae056f-614b-4d88-acbb-748fa0e980f2)](https://www.loom.com/share/4a35226d55c142368e94cbfc31d21a61?sid=5f3f95d2-24e1-4151-bdae-9986a7b37928)
 
